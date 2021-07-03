@@ -161,6 +161,47 @@
 - 对象销毁前
   - 执行destroy()方法
 
+总结：
+
+- 构造器
+  - 执行时机：Servlet第一次接收请求时，执行
+  - 执行次数：在整个生命周期中，执行一次
+- init()
+  - 执行时机：Servlet第一次接收请求，执行构造器之后，执行
+  - 执行次数：在整个生命周期中，执行一次
+- service()
+  - 执行时机：Servlet每次接收请求，执行
+  - 执行次数：在整个生命周期中，执行多次
+- destroy()
+  - 执行时机：关闭服务器时，执行
+  - 执行次数：在整个生命周期中，执行一次
+
+> 扩展：
+>
+> 如注册Servlet时，有如下代码。此时构造器和init()，会在启动服务器时，执行。其他方法不变。
+>
+> ```xml
+> <servlet>
+> <!--        设置Servlet别名-->
+>      <servlet-name>MyFirstServlet</servlet-name>
+> <!--        设置Servlet全类名-->
+>      <servlet-class>com.atguigu.servlet.MyFirstServlet</servlet-class>
+>  <!--        设置Servlet优先级
+>              index
+>                     * 正整数
+>                     * 数值越小，优先级越高。【一般从1开始使用】
+> 	-->
+>         <load-on-startup>1</load-on-startup>
+>     </servlet>
+>     <servlet-mapping>
+>         <servlet-name>MyFirstServlet</servlet-name>
+> <!--        设置Servlet虚拟URL【通过URL找到指定Servlet】-->
+>         <url-pattern>/MyFirstServlet</url-pattern>
+>     </servlet-mapping>
+> ```
+
+
+
 ## 第5章 Servlet的两个重要接口
 
 官方API中声明如下：
@@ -192,7 +233,6 @@
     ```
 
     
-  
 
 ### 5.2 ServletContext接口
 
@@ -356,23 +396,38 @@ HttpServletRequest对象的主要功能有：
   ② 通过表单提交
 
   ```html
-  <form action="MyHttpServlet" method="post">	你喜欢的足球队<br /><br />	巴西<input type="checkbox" name="soccerTeam" value="Brazil" />	德国<input type="checkbox" name="soccerTeam" value="German" />	荷兰<input type="checkbox" name="soccerTeam" value="Holland" />	<input type="submit" value="提交" /></form>
+  <form action="MyHttpServlet" method="post">
+      你喜欢的足球队<br /><br />
+      巴西<input type="checkbox" name="soccerTeam" value="Brazil" />
+      德国<input type="checkbox" name="soccerTeam" value="German" />
+      荷兰<input type="checkbox" name="soccerTeam" value="Holland" />
+      <input type="submit" value="提交" />
+  </form>
   ```
 
 - 使用HttpServletRequest对象获取请求参数
 
   ```java
-  //一个name对应一个值String userId = request.getParameter("userId");
+  //一个name对应一个值
+  String userId = request.getParameter("userId");
   ```
-
+  
   ```java
-  //一个name对应一组值String[] soccerTeams = request.getParameterValues("soccerTeam");for(int i = 0; i < soccerTeams.length; i++){	System.out.println("team "+i+"="+soccerTeams[i]);}
+  //一个name对应一组值
+  String[] soccerTeams = request.getParameterValues("soccerTeam");
+  for(int i = 0; i < soccerTeams.length; i++){	
+      System.out.println("team "+i+"="+soccerTeams[i]);
+  }
   ```
 
 #### 7.1.2 获取url地址参数
 
 ```java
-String path = request.getContextPath();//重要System.out.println("上下文路径："+path);System.out.println("端口号："+request.getServerPort());System.out.println("主机名："+request.getServerName());System.out.println("协议："+request.getScheme());
+String path = request.getContextPath();
+System.out.println("上下文路径："+path);
+System.out.println("端口号："+request.getServerPort());
+System.out.println("主机名："+request.getServerName());
+System.out.println("协议："+request.getScheme());
 ```
 
 #### 7.1.3 获取请求头信息
@@ -391,17 +446,24 @@ System.out.println("上个页面的地址："+referer);//登录失败，返回�
 将请求转发给另外一个URL地址，参见第7章-请求的转发与重定向。
 
 ```java
-//获取请求转发对象RequestDispatcher dispatcher = request.getRequestDispatcher("success.html");dispatcher.forward(request, response);//发起转发
+//获取请求转发对象
+RequestDispatcher dispatcher = request.getRequestDispatcher("success.html");
+dispatcher.forward(request, response);//发起转发
 ```
 
 #### 7.1.5 向请求域中保存数据
 
 ```java
-//将数据保存到request对象的属性域中request.setAttribute("attrName", "attrValueInRequest");//两个Servlet要想共享request对象中的数据，必须是转发的关系request.getRequestDispatcher("/ReceiveServlet").forward(request, response);
+//将数据保存到request对象的属性域中
+request.setAttribute("attrName", "attrValueInRequest");
+//两个Servlet要想共享request对象中的数据，必须是转发的关系
+request.getRequestDispatcher("/ReceiveServlet").forward(request, response);
 ```
 
 ```java
-//从request属性域中获取数据Object attribute = request.getAttribute("attrName");System.out.println("attrValue="+attribute);
+//从request属性域中获取数据
+Object attribute = request.getAttribute("attrName");
+System.out.println("attrValue="+attribute);
 ```
 
 
@@ -420,7 +482,7 @@ HttpServletResponse对象的主要功能有：
 
 ```java
 //通过PrintWriter对象向浏览器端发送响应信息
-PrintWriter writer = res.getWriter();
+PrintWriter writer = response.getWriter();
 writer.write("Servlet response");
 writer.close();
 ```
@@ -471,7 +533,14 @@ response.setHeader("Content-Type", "text/html;charset=UTF-8");
 - 代码举例
 
 ```java
-protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {	//1.使用RequestDispatcher对象封装目标资源的虚拟路径	RequestDispatcher dispatcher = request.getRequestDispatcher("/index.html");	//2.调用RequestDispatcher对象的forward()方法“前往”目标资源	//[注意：传入的参数必须是传递给当前Servlet的service方法的	//那两个ServletRequest和ServletResponse对象]	dispatcher.forward(request, response);}
+protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {	
+    //1.使用RequestDispatcher对象封装目标资源的虚拟路径	
+    RequestDispatcher dispatcher = request.getRequestDispatcher("/index.html");	
+    //2.调用RequestDispatcher对象的forward()方法“前往”目标资源	
+    //[注意：传入的参数必须是传递给当前Servlet的service方法的	
+    //那两个ServletRequest和ServletResponse对象]	
+    dispatcher.forward(request, response);
+}
 ```
 
 ### 8.2 请求的重定向
@@ -502,7 +571,11 @@ protected void doGet(HttpServletRequest request,HttpServletResponse response) th
 - 代码举例：
 
 ```java
-protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {	//1.调用HttpServletResponse对象的sendRedirect()方法	//2.传入的参数是目标资源的虚拟路径	response.sendRedirect("index.html");}
+protected void doGet(HttpServletRequest request,HttpServletResponse response) throws ServletException, IOException {	
+    //1.调用HttpServletResponse对象的sendRedirect()方法	
+    //2.传入的参数是目标资源的虚拟路径	
+    response.sendRedirect("index.html");
+}
 ```
 
 ### 8.3 对比请求的转发与重定向
@@ -645,13 +718,18 @@ response.sendRedirect(request.getContextPath()+"/xxx");
 - 习惯上在html的<head>标签内，声明：
 
 ```html
-<!-- 给页面中的相对路径设置基准地址 --><base href="http://localhost:8080/Test_Path/"/>
+<!-- 给页面中的相对路径设置基准地址 -->
+<base href="http://localhost:8080/Test_Path/"/>
 ```
 
 接着html中的路径就可以使用相对路径的方式来访问。比如：
 
 ```html
-<h4> base+相对路径</h4><!-- <base href="http://localhost:8080/Test_Path/"/> --><a href="1.html">1.html</a><br/><a href="a/3.html">a/3.html</a><br/><!-- servlet映射到了项目根目录下，可以直接访问 --><a href="PathServlet">PathServlet</a><br/>
+<h4> base+相对路径</h4>
+<!-- <base href="http://localhost:8080/Test_Path/"/> -->
+<a href="1.html">1.html</a><br/>
+<a href="a/3.html">a/3.html</a><br/>
+<!-- servlet映射到了项目根目录下，可以直接访问 -->
+<a href="PathServlet">PathServlet</a><br/>
 ```
-
 
