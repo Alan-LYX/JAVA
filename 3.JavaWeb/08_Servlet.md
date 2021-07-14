@@ -633,6 +633,8 @@ protected void doGet(HttpServletRequest request,HttpServletResponse response) th
 
 - 一旦配置好以后，可以解决当前工作空间中所有的GET请求的乱码问题。
 
+  ![](imgs/08.9.3.1.png)
+
 #### 9.3.2 POST请求
 
 - post请求提交了中文的请求体，服务器解析出现问题。
@@ -663,7 +665,79 @@ protected void doGet(HttpServletRequest request,HttpServletResponse response) th
 
   > 说明：有的人可能会想到使用response.setCharacterEncoding(“utf-8”)，设置reponse对象将UTF-8字符串写入到响应报文的编码为UTF-8。只这样做是不行的，还必须手动在浏览器中设置浏览器的解析用到的字符集。
 
+```java
+        //将服务器编码设置：GBK
+//        response.setCharacterEncoding("GBK");
+
+        //将服务器编码与浏览器解码均设置为：UTF-8【推荐使用】
+//        response.setHeader("Content-Type","text/html;charset=UTF-8");
+        response.setContentType("text/html;charset=UTF-8");
+
+        //设置响应文本类型&字符集
+//        response.setHeader("Content-Type","text/html;charset=UTF-8");
+        //将服务器解码设置为：UTF-8即可。
+        request.setCharacterEncoding("UTF-8");
+```
+
+
+
 ## 第10章 Web应用路径设置
+
+- 发现问题：在web应用中，使用【相对路径../】不可靠【可能出现404现象】；所以建议使用绝对路径。
+
+- 什么是绝对路径？
+
+  - 以【/】开头的路径，称之为绝对路径。
+
+- 【/】的两种语义？
+
+  - 服务器解析【/】，【/】代表项目web上下文路径，即：http://localhost:8080/day06_servlete
+  - 浏览器解析【/】，【/】代表服务器路径，即：http://localhost:8080
+
+- 【/】的解析问题
+
+  - 以下两种情况，由服务器解析【/】
+    1. web.xml中注册使用【/】
+    2. 转发中的【/】
+  - 以下两种情况，由浏览器解析【/】
+    1. 静态资源中【/】，如HTML|CSS|JS
+    2. 重定向中的【/】
+
+- 使用绝对路径代码
+
+  - html
+
+    ```html
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Title</title>
+        <base href="/day06_servlete/">
+    </head>
+    <body>
+    <a href="pages/login.html">我要登录</a>
+    <br>
+    <a href="pages/regist.html">我要注册</a>
+    <form action="#"></form>
+    </body>
+    </html>
+    ```
+
+  - Servlet
+
+    ```java
+    if("huangjin".equals(username) && "123456".equals(password)){
+        //登录成功【转发跳转login_success.html】
+    request.getRequestDispatcher("/pages/login_success.html").forward(request,response);
+    }else{
+        //登录失败【重定向跳转回login.html】
+        //获取上下文路径
+        response.sendRedirect(request.getContextPath()+"/pages/login.html");
+    }
+    ```
+
+    
 
 **问题再现：**
 
