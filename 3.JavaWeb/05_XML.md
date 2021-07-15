@@ -2,8 +2,6 @@
 
 ## 第1章 XML简介
 
-​		不同的平台有他自己的数据格式，但是不同平台之间如果相互想传递数据，那么就应该用同一种数据格式，这样大家都能读懂。就像加入WTO组织的各个国家一样。每个国家都有自己的语言和货币，但是如果大家都用自己的东西就很难沟通和衡量。那么我们就使用统一的方式，使用英语作为交流语言，使用美元作为货币标准。
-
 ### 1.1 什么是XML
 
 - XML：e**X**tensible **M**arkup **L**anguage  （可扩展标记语言）。
@@ -490,5 +488,4 @@ public void testXpath() throws Exception{
 ```xml
 <?xml version="1.0" encoding="UTF-8"?><students>	<student id="1">		<name>孙悟空</name>		<gender>男</gender>		<age>520</age>		<address>花果山</address>	</student>	<student id="2">		<name>猪八戒</name>		<gender>男</gender>		<age>1520</age>		<address>高老庄</address>	</student>	<student id="3">		<name>沙悟净</name>		<gender>男</gender>		<age>1000</age>		<address>流沙河</address>	</student>	<student id="4">		<name>小白龙</name>		<gender>男</gender>		<age>1800</age>		<address>鹰愁涧</address>	</student></students>
 ```
-
 

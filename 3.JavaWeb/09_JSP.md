@@ -4,7 +4,7 @@
 
 ### 1.1 现有技术不足
 
-Servlet可以通过转发或重定向跳转到某个HTML文档。但HTML文档中的内容不受Servlet的控制。比如登录失败时，跳转回登录表单页面无法显示诸如“用户名或密码不正确”的错误消息，所以我们目前采用的办法是跳转到一个错误信息页面。如果通过Servlet逐行输出响应信息则会非常繁琐。
+​		Servlet可以通过转发或重定向跳转到某个HTML文档。但HTML文档中的内容不受Servlet的控制。比如登录失败时，跳转回登录表单页面无法显示诸如“用户名或密码不正确”的错误消息，所以我们目前采用的办法是跳转到一个错误信息页面。如果通过Servlet逐行输出响应信息则会非常繁琐。
 
 **Servlet输入html页面的程序代码：**
 
@@ -47,11 +47,7 @@ public class HtmlServlet extends HttpServlet {
 
 ```
 
-**接着，在浏览器中输入访问Servlet的程序地址得到以下结果：**
-
-![1558024339505](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558024339505.png)
-
-上面的代码我们不难发现。通过Servlet输出简单的html页面信息都非常不方便。那我们要输出一个复杂页面的时候，就更加的困难，而且不利于页面的维护和调试。
+​		上面的代码我们不难发现。通过Servlet输出简单的html页面信息都非常不方便。那我们要输出一个复杂页面的时候，就更加的困难，而且不利于页面的维护和调试。
 
 ### 1.2 Servlet与HTML
 
@@ -62,9 +58,7 @@ public class HtmlServlet extends HttpServlet {
 
 ### 1.3 总结
 
-那能否将Servlet和HTML二者的长处结合起来呢？
-
-能！sun公司推出一种叫做JSP的动态页面技术帮助我们实现对页面输出繁锁工作。
+​		sun公司推出一种叫做JSP的动态页面技术帮助我们实现对页面输出繁锁工作。
 
 
 
@@ -116,130 +110,7 @@ public class HtmlServlet extends HttpServlet {
 
 
 
-## 第三章 Jsp的初体验
-
-### 3.1 创建一个JSP动态页面程序：HelloWorld
-
-**① 选中WebContent目录，右键创建一个jsp文件**
-
-![1558024530231](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558024530231.png)
-
-**②  修改jsp页面的文件名**
-
-![1558024571910](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558024571910.png)
-
-**③ 选择生成jsp文件的模板，我们选择默认的New JSP File(html)**
-
-![1558024609595](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558024609595.png)
-
-**④ 在body标签中添加你想要显示的文本内容**
-
-![1558024688103](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558024688103.png)
-
-**⑤ 然后在浏览器中输入jsp页面的访问地址**
-
-- jsp页面的访问地址和html页面的访问路径一样http://ip:端口号/工程名/文件名。也就是http://127.0.0.1:8080/day08/index.jsp
-
-  ![1558024743613](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558024743613.png)
-
-
-
-### 3.2 修改jsp文件的默认编码
-
-![1558024995955](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558024995955.png)
-
-**注意事项：**
-
-1、jsp页面是一个类似于html的一个页面。 jsp直接存放到WebContent目录下，和html一样访问jsp的时候，也和访问html一样
-
-2、jsp的默认编码集是iso-8859-1，修改jsp的默认编码为UTF-8
-
-### 3.3 JSP运行原理
-
-- jsp的本质其实是一个Servlet程序。
-
-  - 实际上Tomcat在运行JSP时，并不是直接显示的我们所编写的JSP页面，而是将JSP页面转换成了一个Java类，这个Java类是什么，我想大家也能猜到了，它实际上就是一个Servlet。
-
-- 这个Servlet在哪呢？还记得我们说过的Tomcat的work目录吗？在那个目录下保存着Tomcat自动生成的一些内容，下面让我们来找到那个目录。
-
-  - 对于Eclipse来说是在：工作空间下的.metadata\.plugins\org.eclipse.wst.server.core\tmp0
-  - 对于MyEclipse来说就可以直接去Tomcat的安装目录去查找
-  - 对于IDEA来说，目录：C:\Users\admin\.IntelliJIdea2019.2\system\tomcat\Tomcat_7_0_79_web_0621_4\work\Catalina\localhost\day07_jsp\org\apache\jsp
-
-- 在work目录下的...work\Catalina\localhost\day07_jsp\org\apache\jsp文件夹中我们可以发现两个文件index_jsp.java和index_jsp.class，前者就是Tomcat自动生成的Servlet的源码，后者是编译后的.class文件。
-
-  - ![1558366745836](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558366745836.png)
-
-- 打开index_jsp.java文件部分内容如下：
-
-  - 图一：
-
-    ![jsp翻译servlet后部分源码1](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\jsp翻译servlet后部分源码1.png)
-
-    我们打开index_jsp.java文件查看里面的内容：发现，生成的类继承于HttpJspBase类。这是一个jsp文件生成Servlet程序要继承的基类！于是，我们关联源代码。去查看一下HttpJspBase类的内容。从源码的类注释说明中，我们发现。HttpJspBase这个类就是所有JSP文件生成Servlet程序需要去继承的基类。并且这个HttpJspBase类继承于HttpServlet类。我们访问JSP时服务器就是调用了该Servlet来响应请求。所以JSP也是一个Servlet小程序。
-
-    ![1558367072400](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558367072400.png)
-
-    我们分别在工程的WebContent目录下创建多个jsp文件。然后依次访问。它们都被翻译为.java文件并编译成为.class字节码文件。
-
-    ![1558367125616](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558367125616.png)
-
-    我们顺着代码向下看，会发现_jspService()方法。会发现有九个对象（实际上默认会看到八个），这是后面要讲到的重点。
-
-  - 图二：
-
-    ![jsp翻译servlet后部分源码2](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\jsp翻译servlet后部分源码2.png)
-
-**小结：**			
-
-从生成的文件我们不难发现一个规则：
-
-a.jsp 翻译成 java文件后的全名是    a_jsp.java文件
-
-b.jsp 翻译成 java文件后的全名是    b_jsp.java文件
-
-**那么当我们访问 一个xxx.jsp文件后翻译成java文件的全名是  xxx_jsp.java文件。**
-
-**xxx_jsp.java文件是一个Servlet程序。原来jsp中的html内容都被翻译到Servlet类的service方法中原样输出。**
-
-![1558023396492](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1558023396492.png)
-
-下一个问题：**Servlet是需要在web.xml中配置的**，而我们并没有配置JSP的serlvet映射，那他是如何访问的呢？实际在tomcat下的conf目录中的**web.xm**l早已配置好了JSP的映射信息，具体内容如下：
-
-```xml
-<servlet>
-	<servlet-name>jsp</servlet-name>
-    <servlet-class>org.apache.jasper.servlet.JspServlet</servlet-class>
-    <init-param>
-		<param-name>fork</param-name>
-		<param-value>false</param-value>
-	</init-param>
-	<init-param>
-		<param-name>xpoweredBy</param-name>
-		<param-value>false</param-value>
-	</init-param>
-	<load-on-startup>3</load-on-startup>
-</servlet>
-
-<servlet-mapping>
-	<servlet-name>jsp</servlet-name>
-	<url-pattern>*.jsp</url-pattern>
-</servlet-mapping>
-
-<servlet-mapping>
-	<servlet-name>jsp</servlet-name>
-	<url-pattern>*.jspx</url-pattern>
-</servlet-mapping>
-```
-
-#### 总结Jsp运行原理
-
-1. **第一次访问jsp页面时，服务器会将xxx.jsp文件翻译成xxx_jsp.java文件，再编译成xxx_jsp.class文件。** 
-2. **以后在访问同一个jsp文件**
-   - **如果文件未改变，不会被翻译和编译**
-   - **如果文件改变，会翻译和编译**
-
-## 第四章 Jsp基本语法
+## 第三章 Jsp基本语法
 
 ### 4.1指令
 
@@ -278,7 +149,7 @@ b.jsp 翻译成 java文件后的全名是    b_jsp.java文件
 - 实例
 
   ```jsp
-   <%=i%>
+   <%= i %>
   ```
 
 ### 4.5声明（了解）
@@ -301,7 +172,7 @@ b.jsp 翻译成 java文件后的全名是    b_jsp.java文件
 
 
 
-## 第五章 Jsp常用指令
+## 第四章 Jsp常用指令
 
 ### 5.1 语法格式
 
@@ -625,37 +496,71 @@ b.jsp 翻译成 java文件后的全名是    b_jsp.java文件
   - context1.jsp的页面代码如下：
 
     ```jsp
-    <%@ page language="java" contentType="text/html; charset=UTF-8"    pageEncoding="UTF-8"%><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Insert title here</title></head><body>	这是context1页面<br/>	<%		//设置page域的数据		pageContext.setAttribute("key", "pageContext-value");		//设置request域的数据		request.setAttribute("key", "request-value");		//设置session域的数据		session.setAttribute("key", "session-value");		//设置application域的数据		application.setAttribute("key", "application-value");	%>	<%-- 测试当前页面作用域 --%>	<%=pageContext.getAttribute("key") %><br/>	<%=request.getAttribute("key") %><br/>	<%=session.getAttribute("key") %><br/>	<%=application.getAttribute("key") %><br/>	<%			// 测试request作用域// 		request.getRequestDispatcher("/context2.jsp").forward(request, response);	%></body></html>
+    <%@ page language="java" contentType="text/html; charset=UTF-8"    pageEncoding="UTF-8"%>
+    <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <title>Insert title here</title>
+        </head>
+        <body>
+            这是context1页面<br/>	
+            <%		
+            //设置page域的数据		
+            pageContext.setAttribute("key", "pageContext-value");		
+            //设置request域的数据		
+            request.setAttribute("key", "request-value");		
+            //设置session域的数据		
+            session.setAttribute("key", "session-value");		
+            //设置application域的数据		
+            application.setAttribute("key", "application-value");	
+            %>	
+            <%-- 测试当前页面作用域 --%>
+            <%=pageContext.getAttribute("key") %><br/>	
+            <%=request.getAttribute("key") %><br/>	
+            <%=session.getAttribute("key") %><br/>	
+            <%=application.getAttribute("key") %><br/>	
+            <%			
+            // 测试request作用域
+            //request.getRequestDispatcher("/context2.jsp").forward(request, response);	
+            %>
+        </body>
+    </html>
     ```
-
+  
   - context2.jsp的页面代码如下：
-
+  
     ```jsp
-    <%@ page language="java" contentType="text/html; charset=UTF-8"    pageEncoding="UTF-8"%><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Insert title here</title></head><body>	这是context2页面 <br/>	<%=pageContext.getAttribute("key") %><br/>	<%=request.getAttribute("key") %><br/>	<%=session.getAttribute("key") %><br/>	<%=application.getAttribute("key") %><br/></body></html>
+    <%@ page language="java" contentType="text/html; charset=UTF-8"    pageEncoding="UTF-8"%>
+    <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+    <html>
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+            <title>Insert title here</title>
+        </head>
+        <body>	
+            这是context2页面 <br/>	
+            <%=pageContext.getAttribute("key") %><br/>	
+            <%=request.getAttribute("key") %><br/>	
+            <%=session.getAttribute("key") %><br/>	
+            <%=application.getAttribute("key") %><br/>
+        </body>
+    </html>
     ```
-
+  
   - 测试操作：
-
+  
     ```txt
-    测试pageContext作用域步骤：直接访问context1.jsp文件测试request作用域步骤：1.在context1.jsp文件中添加转发到context2.jsp（有数据）2.直接访问context2.jsp文件 （没有数据）测试session作用域步骤：1.访问完context1.jsp文件2.关闭浏览器。但是要保持服务器一直开着3.打开浏览器，直接访问context2.jsp文件测试application作用域步骤：1.访问完context1.jsp文件，然后关闭浏览器2.停止服务器。再启动服务器。3.打开浏览器访问context2.jsp文件
+    测试pageContext作用域步骤：直接访问context1.jsp文件
+    测试request作用域步骤：
+    	1.在context1.jsp文件中添加转发到context2.jsp（有数据）
+    	2.直接访问context2.jsp文件 （没有数据）
+    测试session作用域步骤：
+    	1.访问完context1.jsp文件
+    	2.关闭浏览器。但是要保持服务器一直开着
+    	3.打开浏览器，直接访问context2.jsp文件
+    测试application作用域步骤：
+    	1.访问完context1.jsp文件，然后关闭浏览器
+    	2.停止服务器。再启动服务器。
+    	3.打开浏览器访问context2.jsp文件
     ```
-
-## 第九章 作业
-
-### 9.1 练习一
-
-练习1：输出一表格，里有20个学生的信息，表格包含学号，姓名，年龄，性别，地址的信息。
-
-这里的学生对象及集合对象，在Servlet中创建，转发给jsp显示。
-
-```css
-表格样式：<style type="text/css">	table{		width: 500px;		border: 1px solid red;		border-collapse: collapse;	}	th , td{		border: 1px solid red;	}</style>
-```
-
-效果如图：
-
-![1563001257014](D:\0JAVAstudy\尚硅谷1.07\3.阶段三 Web开发与实战应用\尚硅谷_JavaWeb课件_张春胜\08_JSP_☆\尚硅谷_张春胜_JSP.resource\1563001257014.png)
-
-### 9.2 练习二
-
-练习2：编写一个注册页面，使用提交到jsp的方式进行处理。显示用户注册的详细信息。如果用户名是admin，提示用户名已存在，请重新注册。整个过程不经过Servlet。
