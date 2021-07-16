@@ -1,9 +1,5 @@
 # JSTL (JSP Standard Tag Library)
 
-讲师：尚硅谷-张春胜
-
-email：zhangchunsheng_it@163.com
-
 ***
 
 ## 第1章 JSTL简介
@@ -60,7 +56,8 @@ email：zhangchunsheng_it@163.com
 
 **第一步：先引入JSTL标签库的jar包类库到WEB-INF/lib目录下**
 
-​	![1558539063529](D:/0JAVAstudy/尚硅谷1.07/3.阶段三 Web开发与实战应用/尚硅谷_JavaWeb课件_张春胜/10_JSTL_★/尚硅谷_张春胜_JSTL.assets/1558539063529.png)
+- taglibs-standard-impl-1.2.1.jar
+- taglibs-standard-spec-1.2.1.jar
 
 这两个jar包，和笔记在同一个目录下。
 
@@ -68,20 +65,19 @@ email：zhangchunsheng_it@163.com
 
 - 以core核心标签库为例，需要在jsp页面中导入标签库的引用。
 
-  ![1558539099390](D:/0JAVAstudy/尚硅谷1.07/3.阶段三 Web开发与实战应用/尚硅谷_JavaWeb课件_张春胜/10_JSTL_★/尚硅谷_张春胜_JSTL.assets/1558539099390.png)
-
   - prefix用来指定前缀名，我们通过该名来使用JSTL
-  - uri属性为标签库的唯一uri地址。因为JSTL由多个不同的库组成，使用该属性指定要导入哪个库。http://java.sun.com/jsp/jstl/core 
+  - uri属性为标签库的唯一uri地址。
+  - 因为JSTL由多个不同的库组成，使用该属性指定要导入哪个库。http://java.sun.com/jsp/jstl/core 
 
 **第三步：使用JSTL**
 
-然后我们就可以在jsp页面中愉快的使用标签库了。
+​	然后我们就可以在jsp页面中愉快的使用标签库了。
 
-<c:out value="hello">\</c:out>
+​	<c:out value="hello">\</c:out>
 
-这个例子标识，调用前缀为c的标签的out方法，向页面中输出value属性中的字符串。
+​	这个例子标识，调用前缀为c的标签的out方法，向页面中输出value属性中的字符串。
 
-JSTL的使用非常像html标签。
+​	JSTL的使用非常像html标签。
 
 ## 第3章 核心标签
 
@@ -178,9 +174,7 @@ JSTL的使用非常像html标签。
 
 ```
 
-**运行结果：**
 
-![1558604309995](D:/0JAVAstudy/尚硅谷1.07/3.阶段三 Web开发与实战应用/尚硅谷_JavaWeb课件_张春胜/10_JSTL_★/尚硅谷_张春胜_JSTL.assets/1558604309995.png)
 
 ### 3.3 \<c:if>标签
 
@@ -198,7 +192,7 @@ JSTL的使用非常像html标签。
 
 ```jsp
 <body>
-	<!-- 判断 12 == 12 -->
+	<!-- 判断 12 == 12 条件成立才会输出中间的文本-->
 	<c:if test="${ 12 == 12 }">
 		<h1>12 == 12 为真</h1>
 	</c:if>
@@ -210,9 +204,7 @@ JSTL的使用非常像html标签。
 
 ```
 
-**运行结果：**
 
-![1558611135271](D:/0JAVAstudy/尚硅谷1.07/3.阶段三 Web开发与实战应用/尚硅谷_JavaWeb课件_张春胜/10_JSTL_★/尚硅谷_张春胜_JSTL.assets/1558611135271.png)
 
 ### 3.4 \<c:choose>、\<c:when>、\<c:otherwise>标签(常用)
 
@@ -269,11 +261,11 @@ switch语句中有case，而\<c:choose>标签中对应有\<c:when>，switch语�
 	</c:choose>
 </body>
 
+//结果：成绩为A
+
 ```
 
-**运行结果：**
 
-![1558611318535](D:/0JAVAstudy/尚硅谷1.07/3.阶段三 Web开发与实战应用/尚硅谷_JavaWeb课件_张春胜/10_JSTL_★/尚硅谷_张春胜_JSTL.assets/1558611318535.png)
 
 ### 3.5 \<c:forEach>标签
 
@@ -314,18 +306,79 @@ switch语句中有case，而\<c:choose>标签中对应有\<c:when>，switch语�
 表格的格式：
 
 ```css
-<style type="text/css">	table{		width: 700px;		border: 1px solid red;		border-collapse: collapse;	}	th , td{		border: 1px solid red;	}</style>
+<style type="text/css">	
+table{		width: 700px;		border: 1px solid red;		border-collapse: collapse;	}	
+th , td{		border: 1px solid red;	}
+</style>
 ```
 
 **示例：**
 
 ```jsp
-<%@page import="java.util.ArrayList"%><%@page import="java.util.List"%><%@page import="java.util.HashMap"%><%@page import="java.util.Map"%><%@ page language="java" contentType="text/html; charset=UTF-8"    pageEncoding="UTF-8"%><%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>   <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Insert title here</title><style type="text/css">	table{		width: 700px;		border: 1px solid red;		border-collapse: collapse;	}	th , td{		border: 1px solid red;	}</style></head><body><%	// 模拟创建5个学生的信息	List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();	for (int i = 0; i < 5; i++) {		Map<String,Object> item = new HashMap<String,Object>();		item.put("id", (i + 1));		item.put("username", "用户名" + i);		item.put("password", "密码" + i);		item.put("age", (12 + i) );		item.put("phone", "18615041888");		list.add(item);	}	// 保存学生的信息到pageContext作用域中	pageContext.setAttribute("stus", list);%><table>	<tr>		<th>编号</th>		<th>姓名</th>		<th>密码</th>		<th>年龄</th>		<th>电话</th>		<th>遍历的个数</th>		<th>当前索引</th>		<th>是否第一个</th>		<th>是否最后一个</th>	</tr>	<%-- 		begin表示从索引0开始，		end表示到索引10结束，		step表示迭代的步长		items是遍历的集合		var是当前遍历到的对象名		varStatus是当前遍历的状态对象，是LoopTagStatus对象实例	 --%>	<c:forEach begin="0" end="10" step="1" items="${ pageScope.stus }" var="item" varStatus="status">		<tr>			<td>${ item.id }</td>			<td>${ item.username }</td>			<td>${ item.password }</td>			<td>${ item.age }</td>			<td>${ item.phone }</td>			<td>${ status.count }</td>			<td>${ status.index }</td>			<td>${ status.first }</td>			<td>${ status.last }</td>		</tr>	</c:forEach></table></body></html>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Map"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8"    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>   
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>Insert title here</title>
+        <style type="text/css">	
+            table{		width: 700px;		border: 1px solid red;		border-collapse: collapse;	}	
+            th , td{		border: 1px solid red;	}
+        </style>
+    </head>
+    <body>
+        <%	
+        // 模拟创建5个学生的信息	
+        List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();	
+        for (int i = 0; i < 5; i++) {		
+            Map<String,Object> item = new HashMap<String,Object>();	
+            item.put("id", (i + 1));	
+            item.put("username", "用户名" + i);	
+            item.put("password", "密码" + i);		
+            item.put("age", (12 + i) );		
+            item.put("phone", "18615041888");	
+            list.add(item);
+        }	// 保存学生的信息到pageContext作用域中	pageContext.setAttribute("stus", list);
+        %>
+        <table>	
+            <tr>		
+                <th>编号</th>	
+                <th>姓名</th>		
+                <th>密码</th>	
+                <th>年龄</th>	
+                <th>电话</th>	
+                <th>遍历的个数</th>
+                <th>当前索引</th>	
+                <th>是否第一个</th>	
+                <th>是否最后一个</th>	
+            </tr>	
+            <%--begin表示从索引0开始，end表示到索引10结束，step表示迭代的步长，items是遍历的集合，var是当前遍历到的对象名，varStatus是当前遍历的状态对象，是LoopTagStatus对象实例	 --%>	
+            <c:forEach begin="0" end="10" step="1" items="${ pageScope.stus }" var="item" varStatus="status">		
+                <tr>		
+                    <td>${ item.id }</td>	
+                    <td>${ item.username }</td>		
+                    <td>${ item.password }</td>		
+                    <td>${ item.age }</td>		
+                    <td>${ item.phone }</td>	
+                    <td>${ status.count }</td>		
+                    <td>${ status.index }</td>		
+                    <td>${ status.first }</td>		
+                    <td>${ status.last }</td>	
+                </tr>	
+            </c:forEach>
+        </table>
+    </body>
+</html>
 ```
 
 **运行结果：**
 
-![1558611541959](D:/0JAVAstudy/尚硅谷1.07/3.阶段三 Web开发与实战应用/尚硅谷_JavaWeb课件_张春胜/10_JSTL_★/尚硅谷_张春胜_JSTL.assets/1558611541959.png)
+![](imgs/11.3.6.png)
 
 ### 3.6 \<c:remove>标签
 
@@ -343,7 +396,8 @@ switch语句中有case，而\<c:choose>标签中对应有\<c:when>，switch语�
 **示例：**
 
 ```
-移除所有域中key属性：<c:remove var="key"/>移除request中的key属性: <c:remove var="key" scope="request"/>
+移除所有域中key属性：<c:remove var="key"/>
+移除request中的key属性: <c:remove var="key" scope="request"/>
 ```
 
 
@@ -363,7 +417,17 @@ switch语句中有case，而\<c:choose>标签中对应有\<c:when>，switch语�
 **示例：**
 
 ```jsp
-使用相对路径：<c:url value="index.jsp" var="uri" scope="request">	<c:param name="name" value="张三"></c:param></c:url>会生成如下地址：index.jsp?name=%E5%BC%A0%E4%B8%89使用绝对路径会自动在路径前加上项目名：<c:url value="/index.jsp" var="uri" scope="request">	<c:param name="name" value="张三"></c:param></c:url>会生成如下地址：/Test_JSTL/index.jsp?name=%E5%BC%A0%E4%B8%89
+使用相对路径：
+<c:url value="index.jsp" var="uri" scope="request">
+	<c:param name="name" value="张三"></c:param>
+</c:url>
+会生成如下地址：index.jsp?name=%E5%BC%A0%E4%B8%89
+
+使用绝对路径会自动在路径前加上项目名：
+<c:url value="/index.jsp" var="uri" scope="request">	
+    <c:param name="name" value="张三"></c:param>
+</c:url>
+会生成如下地址：/Test_JSTL/index.jsp?name=%E5%BC%A0%E4%B8%89
 ```
 
 
@@ -421,7 +485,8 @@ fn:contains(string,subString) --> boolean
 例：
 
 ```
-${fn:contains("hello","HE")}  --> false${fn:containsIgnoreCase("hello","HE")} --> true
+${fn:contains("hello","HE")}  --> false
+${fn:containsIgnoreCase("hello","HE")} --> true
 ```
 
 
@@ -433,7 +498,8 @@ ${fn:contains("hello","HE")}  --> false${fn:containsIgnoreCase("hello","HE")} --
 语法：
 
 ```
-fn:startsWith(string , prefix) --> booleanfn:endsWith(string,suffix) --> boolean
+fn:startsWith(string , prefix) --> boolean
+fn:endsWith(string,suffix) --> boolean
 ```
 
 参数和返回值：
@@ -447,7 +513,8 @@ fn:startsWith(string , prefix) --> booleanfn:endsWith(string,suffix) --> boolean
 例：
 
 ```
-${fn:startsWith("hello","he") } --> true${fn:endsWith("hello","he") } --> false
+${fn:startsWith("hello","he") } --> true
+${fn:endsWith("hello","he") } --> false
 ```
 
 
@@ -537,7 +604,8 @@ ${fn:substring("hello",1,3) } --> el
 语法：
 
 ```
-fn: substringBefore(string,subString) --> Stringfn: substringAfter (string,subString) --> String
+fn: substringBefore(string,subString) --> String
+fn: substringAfter (string,subString) --> String
 ```
 
 参数和返回值：
@@ -550,8 +618,9 @@ fn: substringBefore(string,subString) --> Stringfn: substringAfter (string,subSt
 
 例：
 
-```
-${fn:substringBefore("hello","l") } --> he	${fn:substringAfter("hello","l") } --> lo
+```jsp
+${fn:substringBefore("hello","l") } --> he	
+${fn:substringAfter("hello","l") } --> lo
 ```
 
 
@@ -602,8 +671,12 @@ fn:join(array,sparator) --> String
 
 例：
 
-```
-<%String[] strs = new String[]{"a","b","c","d","e","f"};pageContext.setAttribute("strs", strs);%>${fn:join(strs,'-') }
+```jsp
+<%
+String[] strs = new String[]{"a","b","c","d","e","f"};
+pageContext.setAttribute("strs", strs);
+%>
+${fn:join(strs,'-') }
 ```
 
 返回：a-b-c-d-e-f
@@ -616,7 +689,8 @@ fn:join(array,sparator) --> String
 语法：
 
 ```
-fn: toLowerCase (str) --> Stringfn: toUpperCase(str) --> String
+fn: toLowerCase (str) --> String
+fn: toUpperCase(str) --> String
 ```
 
 参数和返回值：
@@ -631,7 +705,8 @@ fn: toLowerCase (str) --> Stringfn: toUpperCase(str) --> String
 例：
 
 ```
-${fn:toLowerCase("ABCDEFG") } --> abcdefg${fn:toUpperCase("abcdefg") } --> ABCDEFG
+${fn:toLowerCase("ABCDEFG") } --> abcdefg
+${fn:toUpperCase("abcdefg") } --> ABCDEFG
 ```
 
 

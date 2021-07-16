@@ -1,9 +1,5 @@
 # 会话控制
 
-讲师：尚硅谷-张春胜
-
-email：zhangchunsheng_it@163.com
-
 ***
 
 ## 第1章 Cookie的介绍
