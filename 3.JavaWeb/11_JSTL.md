@@ -380,6 +380,29 @@ th , td{		border: 1px solid red;	}
 
 ![](imgs/11.3.6.png)
 
+```jsp
+         //另一种遍历方式   
+			<c:forEach var="book" items="${requestScope.list}">
+              <tr>
+                <td>
+                  <img src="${book.imgPath}" alt="" />
+                </td>
+                <td>${book.title}</td>
+                <td>
+                    ${book.price}
+                </td>
+                <td>${book.author}</td>
+                <td>${book.sales}</td>
+                <td>${book.stock}</td>
+                <td>
+                  <a href="">修改</a><a href="" class="del">删除</a>
+                </td>
+              </tr>
+            </c:forEach>
+```
+
+
+
 ### 3.6 \<c:remove>标签
 
 **作用：**用于移除域中的属性
