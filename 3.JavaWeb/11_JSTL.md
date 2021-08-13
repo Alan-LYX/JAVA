@@ -206,7 +206,7 @@
 
 
 
-### 3.4 \<c:choose>、\<c:when>、\<c:otherwise>标签(常用)
+### 3.4 \<c:choose>、\<c:when>、\<c:otherwise>标签
 
 **作用：**
 
