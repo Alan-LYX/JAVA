@@ -280,7 +280,108 @@ MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性
 - databaseIdProvider（数据库厂商标识）
 - mappers（映射器）
 
- 
+ **示例：**
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<!-- 数据库连接环境的配置 -->
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<property name="url" value="jdbc:mysql://localhost:3306/mybatis_1129" />
+				<property name="username" value="root" />
+				<property name="password" value="1234" />
+			</dataSource>
+		</environment>
+	</environments>
+	<!-- 引入SQL映射文件,Mapper映射文件 	-->
+	<mappers>
+		<mapper resource="EmployeeMapper.xml" />
+	</mappers>
+</configuration>
+```
+
+作用：MyBatis 的配置文件包含了会深深影响 MyBatis 行为的设置和属性信息。
+
+标签详解：
+
+- 根标签：configuration，所有子标签均书写在根标签内部。
+
+- properties：将数据源中属性提取到外部，使用该标签进行引入外部属性
+
+  - resource：按照类路径检索属性文件
+  - url：：按照指定路径【真实路径】检索属性文件
+
+- settings：这是 MyBatis 中极为重要的调整设置，它们会改变 MyBatis 的运行时行为。 
+
+  - mapUnderscoreToCamelCase：是否开启驼峰命名自动映射，即从经典数据库列名 A_COLUMN 映射到经典 Java 属性名 aColumn。
+    - 注意：只能将类似last_name与lastName进行映射，不能将其他情况自动映射，如：last_name与lName。
+
+- typeAliases：为POJO设置别名【缩写名】
+
+  ```xml
+  <typeAliases>
+      <!--局部设置-->
+  <!--<typeAlias type="com.atguigu.pojo.Employee" alias="employee"></typeAlias>-->
+      <!--全局设置，为当前包下所有pojo,设置别名。别名为类名首字母小写【使用别名时，不区分大小写】--> 
+      <package name="com.atguigu.pojo"/>
+  </typeAliases>
+  ```
+
+  - mybatis内置一些别名
+
+    | int     | Integer |
+    | ------- | ------- |
+    | list    | List    |
+    | map     | Map     |
+    | integer | Integer |
+    | double  | Double  |
+    | string  | String  |
+
+- environments：设置数据库连接环境
+
+  ```xml
+  <!-- 设置数据库连接环境-->
+  <environments default="development">
+      <environment id="development">
+          <!-- 设置事务管理器
+              this.typeAliasRegistry.registerAlias("JDBC", JdbcTransactionFactory.class);
+          -->
+          <transactionManager type="JDBC"/>
+          <!--设置数据源
+              this.typeAliasRegistry.registerAlias("POOLED", PooledDataSourceFactory.class);
+          -->
+          <dataSource type="POOLED">
+              <property name="driver" value="${db.driver}"/>
+              <property name="url" value="${db.url}"/>
+              <property name="username" value="${db.username}"/>
+              <property name="password" value="${db.password}"/>
+          </dataSource>
+      </environment>
+  </environments>
+  ```
+
+- mappers：加载映射文件
+
+  ```xml
+  <mappers>
+      <!-- 设置映射文件路径-->
+      <!-- <mapper resource="EmployeeMapper.xml" />-->
+      <!-- 设置映射文件包名，将该报名下所有映射文件统一加载
+              要求：映射文件包名，与接口包名一致
+      -->
+      <package name="com.atguigu.mapper"/>
+  </mappers>
+  ```
+
+总结：Mybatis核心配置文件中，根元素下的子元素，必须按照指定顺序书写，否则报错。
 
 # 第4章 MyBatis 映射文件
 
@@ -461,21 +562,25 @@ public void  deleteEmployeeById(Integer id );
 
 ​		任意多个参数，都会被MyBatis重新包装成一个Map传入。
 
-​		Mybatis3.4及以前版本。Map的key是param1，param2...，或者0，1…，值就是参数的值
+​		Mybatis3.4及以前版本。Map的key是param1，param2...，或者0，1…，值就是参数的值。
 
-​		Mybatis3.5及以后版本。Map的key是param1，param2...，或者arg0，arg1…，值就是参数的值
+​		Mybatis3.5及以后版本。Map的key是param1，param2...，或者arg0，arg1…，值就是参数的值。
 
 3)    命名参数
 
-​		为参数使用@Param起一个名字，MyBatis就会将这些参数封装进map中，key就是我们自己指定的名字
+​		为参数使用@Param起一个名字，MyBatis就会将这些参数封装进map中，key就是我们自己指定的名字。
+
+```java
+public Employee selectEmpByNamed(@Param("id") int id, @Param("lastName")String lName);
+```
 
 4)    POJO
 
-​		当这些参数属于我们业务POJO时，我们直接传递POJO
+​		当这些参数属于我们业务POJO时，我们直接传递POJO，此时sql参数为属性名。
 
 5)    Map
 
-​		我们也可以封装多个参数为map，直接传递
+​		我们也可以封装多个参数为map，直接传递。sql的参数名为map的key值。
 
 6)    Collection/Array
 
@@ -494,7 +599,7 @@ insert into orcl_employee(id,last_name,email,gender)
 values(employee_seq.nextval,#{lastName,jdbcType=NULL },#{email},#{gender})  
 ```
 
-###     4.4.3 参数的获取方式
+###     4.4.3 #{key}与${key}
 
 1)    #{key}：获取参数的值，预编译到SQL中。安全。
 
@@ -506,41 +611,68 @@ values(employee_seq.nextval,#{lastName,jdbcType=NULL },#{email},#{gender})
 
 ​		c)    底层原理使用Statement对象，不是占位符方式。
 
- 
+​		d)   占位符?的位置可以使用#{}，除此之外的其他位置，如需传递参数时，使用${key}，比如**列名**。
+
+
 
 ## 4.5 select查询的几种情况
 
 1)    查询单行数据返回单个对象
 
-  **public**  Employee getEmployeeById(Integer id );  
+```java
+  public  Employee getEmployeeById(Integer id );  
+```
 
- 
+ SQL：resultType=pojo
 
 2)    查询多行数据返回对象的集合
 
-  **public**  List<Employee> getAllEmps();  
+```java
+  public  List<Employee> getAllEmps();  
+```
 
- 
+ SQL：resultType=pojo
 
 3)    查询单行数据返回Map集合
 
-  **public**  Map<String,Object> getEmployeeByIdReturnMap(Integer id );  
+```java
+  public  Map<String,Object> getEmployeeByIdReturnMap(Integer id );  
+```
 
- 
+ SQL：resultType=“map或java.util.Map”
 
 4)    查询多行数据返回Map集合
 
-  @MapKey("id")  // 指定使用对象的哪个属性来充当map的key  **public**  Map<Integer,Employee>   getAllEmpsReturnMap();  
+```java
+@MapKey("id")	// 指定使用对象的哪个属性来充当map的key 
+public Map<Integer,Employee> selectEmpReturnPojoMap();
+```
 
- 
+```xml
+<select id="selectEmpReturnPojoMap" resultType="employee">
+    SELECT
+        id,last_name,email,gender
+    FROM
+        tbl_employee
+</select>
+```
+
+
 
 ## 4.6 resultType自动映射
+
+- 概述：自动将表中的**字段**与类中的**属性**关联映射
+- 前提条件
+  - 需要表中的字段与类中的属性一致
+  - 如表中的字段与类中的属性不一致，在Mybatis的核心文件中，设置settings的mapUnderscoreToCamelCase=true。
+
+- 如自动映射不能满足时，使用自定义映射，如以下情况
+  1. 表中的字段与类中的属性不一致，且设置mapUnderscoreToCamelCase=true无效。
+  2. 多表联查，结果集中需要多张表中的数据。
 
 1)    autoMappingBehavior默认是PARTIAL，开启自动映射的功能。唯一的要求是结果集列名和javaBean属性名一致
 
 2)    如果autoMappingBehavior设置为NONE则会取消自动映射
-
-3)    数据库字段命名规范，POJO属性符合驼峰命名法，如A_COLUMNaColumn，我们可以开启自动驼峰命名规则映射功能，mapUnderscoreToCamelCase=true
 
 ## 4.7 resultMap自定义映射
 
@@ -554,205 +686,418 @@ values(employee_seq.nextval,#{lastName,jdbcType=NULL },#{email},#{gender})
 
 5)    collection ： 复杂类型的集
 
-###     4.7.1 id&result 
+###     4.7.1 级联映射 
 
-![img](file:///C:/Users/11373/AppData/Local/Temp/msohtmlclip1/01/clip_image014.jpg)
+```java
+/**
+ * 通过员工id获取员工信息及员工所属部门信息
+ */
+public Employee selectEmployeeAndDeptByEmpId(int id);
+```
 
-  <select id=*"getEmployeeById"*  resultMap=*"myEmp"*>       select id, last_name,email, gender  from tbl_employee where id =#{id}  </select>  <resultMap type=*"com.atguigu.mybatis.beans.Employee"*  id=*"myEmp"*>            <id column=*"id"* property=*"id"*  />            <result column=*"last_name"*  property=*"lastName"*/>            <result column=*"email"*  property=*"email"*/>            <result column=*"gender"*  property=*"gender"*/>  </resultMap>  
+```xml
+<!--    定义resultMap-->
+<resultMap id="deptAndEmpRm" type="employee">
+    <id column="eid" property="id"></id>
+    <result column="last_name" property="lastName"></result>
+    <result column="email" property="email"></result>
+    <result column="gender" property="gender"></result>
+    <!-- 映射员工中部门关联关系-->
+    <result column="did" property="dept.id"></result>
+    <result column="dept_name" property="dept.deptName"></result>
+</resultMap>
+<select id="selectEmployeeAndDeptByEmpId" resultMap="deptAndEmpRm">
+     SELECT
+        e.id eid,e.`last_name`,e.`email`,e.`gender`,
+        d.`id` did,d.`dept_name`
+    FROM
+        tbl_employee e,tbl_dept d
+    WHERE
+        e.dept_id = d.id
+    AND
+        e.id = #{id}
+</select>
+```
 
- 
+###     4.7.2 association（多对一）
 
-###     4.7.2 association
+```java
+/**
+ * 【association】通过员工id获取员工信息及员工所属部门信息（多对一的情况）
+ */
+public Employee selectEmployeeAndDeptByEmpIdAssociation(int id);
+```
 
-1)    POJO中的属性可能会是一个对象,我们可以使用联合查询，并以级联属性的方式封装对象.使用association标签定义对象的封装规则
-
-  **public** **class**  Department {       **private**  Integer id ;        **private**  String deptName ;  // 省略 get/set方法  }  
-
- 
-
-  **public** **class**  Employee {       **private**  Integer id ;        **private**  String lastName;        **private**  String email ;       **private**  String gender ;      **private**  Department dept ;    // 省略 get/set方法  }     
-
- 
-
-表结构准备
-
-CREATE TABLE tbl_dept(
-
-​     id INT(11) PRIMARY KEY AUTO_INCREMENT,
-
-​     dept_name VARCHAR(50) NOT NULL
-
-);
-
-ALTER TABLE tbl_employee ADD COLUMN dept_id INT(11);
-
-ALTER TABLE tbl_employee ADD CONSTRAINT fk_emp_dept FOREIGN KEY (dept_id) REFERENCES tbl_dept(id);
-
- 
-
-2)    使用级联的方式:
-
-  <select id=*"getEmployeeAndDept"*  resultMap=*"myEmpAndDept"* >            SELECT  e.id eid, e.last_name, e.email,e.gender ,d.id did, d.dept_name FROM  tbl_employee e , tbl_dept d  WHERE  e.d_id = d.id AND e.id = #{id}  </select>              <resultMap type=*"com.atguigu.mybatis.beans.Employee"*  id=*"myEmpAndDept"*>            <id column=*"eid"* property=*"id"*/>            <result column=*"last_name"* property=*"lastName"*/>            <result column=*"email"* property=*"email"*/>            <result column=*"gender"* property=*"gender"*/>         <!-- 级联的方式 -->            <result column=*"did"* property=*"dept.id"*/>            <result column=*"dept_name"*  property=*"dept.departmentName"*/>  </resultMap>  
-
- 
-
-3)    Association‘
-
-  <resultMap type=*"com.atguigu.mybatis.beans.Employee"*  id=*"myEmpAndDept"*>            <id column=*"eid"*  property=*"id"*/>            <result column=*"last_name"*  property=*"lastName"*/>            <result column=*"email"*  property=*"email"*/>            <result column=*"gender"*  property=*"gender"*/>            <association property=*"dept"*  javaType=*"com.atguigu.mybatis.beans.Department"*>                <id column=*"did"* property=*"id"*/>                <result column=*"dept_name"* property=*"departmentName"*/>            </association>  </resultMap>  
-
- 
+```xml
+<!--    定义resultMap【association】-->
+<resultMap id="deptAndEmpAssociation" type="employee">
+    <id column="eid" property="id"></id>
+    <result column="last_name" property="lastName"></result>
+    <result column="email" property="email"></result>
+    <result column="gender" property="gender"></result>
+    <!-- association映射员工中部门关联关系
+        property:设置员工中关联部门属性
+        javaType:设置属性类名【全类名】
+    -->
+    <association property="dept" javaType="com.atguigu.pojo.Dept">
+        <id column="did" property="id"></id>
+        <result column="dept_name" property="deptName"></result>
+    </association>
+</resultMap>
+<!--    【association】通过员工id获取员工信息及员工所属部门信息-->
+    <select id="selectEmployeeAndDeptByEmpIdAssociation" resultMap="deptAndEmpAssociation">
+        SELECT
+            e.id eid,e.`last_name`,e.`email`,e.`gender`,
+            d.`id` did,d.`dept_name`
+        FROM
+            tbl_employee e,tbl_dept d
+        WHERE
+            e.dept_id = d.id
+        AND
+            e.id = #{id}
+    </select>
+```
 
 ###     4.7.3 association 分步查询
 
-1)    实际的开发中，对于每个实体类都应该有具体的增删改查方法，也就是DAO层， 因此
+```java
+/**
+ * 【association分步查询：降低服务器压力】通过员工id获取员工信息及员工所属部门信息
+ *      1. 通过员工id员工信息
+ *      2. 通过部门id获取部门信息
+ */
+public Employee selectEmployeeAndDeptByEmpIdAssociationByStep(int id);
+```
 
-对于查询员工信息并且将对应的部门信息也查询出来的需求，就可以通过分步的方式
+```xml
+<!--    定义resultMap[分布查询]-->
+<resultMap id="deptAndEmpAssociationByStep" type="employee">
+    <id column="eid" property="id"></id>
+    <result column="last_name" property="lastName"></result>
+    <result column="email" property="email"></result>
+    <result column="gender" property="gender"></result>
+    <!-- association映射员工中部门关联关系
+        property:设置员工中关联部门属性
+        javaType:设置属性类名【全类名】
+    -->
+    <association property="dept"
+                 select="com.atguigu.mapper.DeptMapper.selectDeptById"
+                 column="did">
+    </association>
+</resultMap>
+<select id="selectEmployeeAndDeptByEmpIdAssociationByStep" resultMap="deptAndEmpAssociationByStep">
+        SELECT
+            e.id eid,e.`last_name`,e.`email`,e.`gender`,
+            d.`id` did,d.`dept_name`
+        FROM
+            tbl_employee e,tbl_dept d
+        WHERE
+            e.dept_id = d.id
+        AND
+            e.id = #{id}
+    </select>
+```
 
-完成查询。
+###     4.7.4 延迟加载（懒加载）
 
-①  先通过员工的id查询员工信息
+- 概述：需要数据时，查询【加载】数据，暂时不需要数据，不查询【加载】数据。
 
-②  再通过查询出来的员工信息中的外键(部门id)查询对应的部门信息. 
+- 代码：在核心配置文件的settings中进行如下配置
 
-  <select id=*"getEmployeeAndDeptStep"*  resultMap=*"myEmpAndDeptStep"*>             select id, last_name, email,gender,d_id from tbl_employee where id =#{id}  </select>         <resultMap type=*"com.atguigu.mybatis.beans.Employee"*  id=*"myEmpAndDeptStep"*>            <id column=*"id"* property=*"id"*  />            <result column=*"last_name"*  property=*"lastName"*/>            <result column=*"email"*  property=*"email"*/>            <result column=*"gender"*  property=*"gender"*/>            <association property=*"dept"*              select=*"com.atguigu.mybatis.dao.DepartmentMapper.getDeptById"*                       column=*"d_id"*  fetchType=*"eager"*>            </association>  </resultMap>  
+  ```xml
+  <!-- 开启全局延迟加载 
+  		lazyLoadingEnabled：延迟加载的全局开关。当开启时，所有关联对象都会延迟加载。 特定关联关系中可通过设置 fetchType 属性来覆盖该项的开关状态。
+  -->
+  <setting name="lazyLoadingEnabled" value="true"/>
+  <!-- 设置加载的数据是按需还是全部
+  	true:全部加载
+   	false:按需加载【默认值Mybatis3.5.1及以后】
+  -->
+  <setting name="aggressiveLazyLoading" value="false"/> 
+  ```
 
- 
 
-###     4.7.4 association 分步查询使用延迟加载（懒加载）
+###     4.7.5 collection（一对多）
 
-1)    在分步查询的基础上，可以使用延迟加载来提升查询的效率，只需要在全局的
+```java
+/**
+ * 通过部门id获取部门信息
+ */
+public Dept selectDeptById(int id);
+```
 
-Settings中进行如下的配置:
+```xml
+<!--    通过部门id获取部门信息-->
+    <select id="selectDeptById" resultType="dept">
+        select
+            id,dept_name
+        from
+            tbl_dept
+        where
+            id=#{id}
+    </select>
+```
 
-  <!-- 开启延迟加载 -->  <setting name=*"lazyLoadingEnabled"* value=*"true"*/>  <!-- 设置加载的数据是按需还是全部 -->  <setting name=*"aggressiveLazyLoading"* value=*"false"*/>  
+collection【外连接】：
 
- 
+```java
+/**
+ * 通过部门id获取部门信息，及部门中所有员工信息
+ * 【如部门中有员工信息，则查询员信息】
+ * 【如部门中暂无员工信息，则员工信息用null不全】
+ */
+public List<Dept> selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn();
+```
 
-###     4.7.5 collection
+```xml
+<!--    左外连接练习-->
+    <select id="selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn" resultMap="deptAndEmpRs">
+        SELECT
+            d.`id` did,d.`dept_name`,
+            e.`id` eid,e.`last_name`,e.`email`,e.`gender`,e.`dept_id`
+        FROM tbl_dept d LEFT JOIN tbl_employee e
+        ON e.`dept_id`=d.`id`
+    </select>
+```
 
-1)    POJO中的属性可能会是一个集合对象,我们可以使用联合查询，并以级联属性的方式封装对象.使用collection标签定义对象的封装规则
+**总结：**
 
-  **public** **class**  Department {       **private**  Integer id ;        **private**  String departmentName ;       **private** List<Employee> emps  ;  }  
+- 设置延迟加载【懒加载】方式
 
-2)    Collection
+  - 全局设置
 
-  <select id=*"getDeptAndEmpsById"*  resultMap=*"myDeptAndEmps"*>            SELECT d.id did,  d.dept_name ,e.id eid ,e.last_name ,e.email,e.gender             FROM tbl_dept d LEFT OUTER JOIN tbl_employee e ON d.id = e.d_id             WHERE d.id = #{id}       </select>       <resultMap type=*"com.atguigu.mybatis.beans.Department"*  id=*"myDeptAndEmps"*>            <id column=*"did"*  property=*"id"*/>            <result column=*"dept_name"*  property=*"departmentName"*/>            <!--                 property: 关联的属性名                ofType: 集合中元素的类型             -->            <collection property=*"emps"* ofType=*"com.atguigu.mybatis.beans.Employee"*>                <id column=*"eid"* property=*"id"*/>                <result column=*"last_name"* property=*"lastName"*/>                <result column=*"email"* property=*"email"*/>                <result column=*"gender"* property=*"gender"*/>            </collection>  </resultMap>  
+    ```xml
+    <!-- 开启延迟加载 -->
+    <setting name="lazyLoadingEnabled" value="true"/>
+    <!-- 设置加载的数据是按需还是全部 -->
+    <setting name="aggressiveLazyLoading" value="false"/>
+    ```
 
- 
+  - 局部设置，在association或collection中添加fetchType
 
-###     4.7.6 collection 分步查询
+    - lazy：开启懒加载（默认）
 
-1)  实际的开发中，对于每个实体类都应该有具体的增删改查方法，也就是DAO层， 因此
+    - eager：关闭懒加载
 
-对于查询部门信息并且将对应的所有的员工信息也查询出来的需求，就可以通过分步的方式完成查询。
+    - fetchType可以灵活的设置查询是否需要使用延迟加载，而不需要因为某个查询不想使用延迟加载将全局的延迟加载设置关闭。
 
-③  先通过部门的id查询部门信息
+      ```xml
+       <collection property="emps"
+           select="com.atguigu.mapper.EmployeeMapper.selectEmpByDeptId"
+           column="{dId=did}"
+           fetchType="eager"
+       >
+       </collection>
+      ```
 
-④  再通过部门id作为员工的外键查询对应的部门信息. 
+###     4.7.6 分步查询多列值的传递
 
-  <select id=*"getDeptAndEmpsByIdStep"*  resultMap=*"myDeptAndEmpsStep"*>           select  id ,dept_name from tbl_dept where id =  #{id}        </select>        <resultMap type=*"com.atguigu.mybatis.beans.Department"*  id=*"myDeptAndEmpsStep"*>           <id column=*"id"* property=*"id"*/>           <result column=*"dept_name"* property=*"departmentName"*/>           <collection property=*"emps"*                      select=*"com.atguigu.mybatis.dao.EmployeeMapper.getEmpsByDid"*                     column=*"id"*>           </collection>   </resultMap>  
+将多个参数，封装Map结构：{key=value,key2=value}
 
- 
+- 具体代码，如下
 
-###     4.7.7 collection 分步查询使用延迟加载
-
-###     4.7.8 扩展: 分步查询多列值的传递
-
-1)    如果分步查询时，需要传递给调用的查询中多个参数，则需要将多个参数封装成
-
-Map来进行传递，语法如下: {k1=v1, k2=v2....}
-
-2)    在所调用的查询方，取值时就要参考Map的取值方式，需要严格的按照封装map
-
-时所用的key来取值. 
-
- 
-
- 
-
-###     4.7.9 扩展: association 或 collection的 fetchType属性 
-
-1)    在<association> 和<collection>标签中都可以设置fetchType，指定本次查询是否要使用延迟加载。默认为 fetchType=”lazy” ,如果本次的查询不想使用延迟加载，则可设置为
-
-fetchType=”eager”.
-
-2)    fetchType可以灵活的设置查询是否需要使用延迟加载，而不需要因为某个查询不想使用延迟加载将全局的延迟加载设置关闭.
+  ```xml
+  <!-- DeptMapper.xml -->
+  <resultMap id="deptAndEmpCollectionByStep" type="dept">
+       <id column="did" property="id"></id>
+       <result column="dept_name" property="deptName"></result>
+       <!--
+  property: 关联的属性名
+  
+  -->
+       <collection property="emps"
+           select="com.atguigu.mapper.EmployeeMapper.selectEmpByDeptId"
+           column="{dId=did}"
+           fetchType="eager"
+       >
+       </collection>
+   </resultMap>
+  
+  <!-- EmployeeMapper.xml-->
+  <select id="selectEmpByDeptId" resultType="employee">
+           SELECT
+              e.`id`,e.`last_name`,e.`gender`,e.`email`
+           FROM
+              tbl_employee e
+           WHERE
+              e.`dept_id`=#{dId}
+      </select>
+  ```
 
 # 第5章：MyBatis 动态SQL
 
 ## 5.1 MyBatis动态SQL简介
 
-1)    动态 SQL是MyBatis强大特性之一。极大的简化我们拼装SQL的操作
+​	1)    动态 SQL是MyBatis强大特性之一。极大的简化我们拼装SQL的操作
 
-2)    动态 SQL 元素和使用 JSTL 或其他类似基于 XML 的文本处理器相似
+​	2)    动态 SQL 元素和使用 JSTL 或其他类似基于 XML 的文本处理器相似
 
-3)    MyBatis 采用功能强大的基于 OGNL 的表达式来简化操作
+​	3)    MyBatis 采用功能强大的基于 OGNL 的表达式来简化操作
 
-if
+- **常用标签：**
 
-choose (when, otherwise)
+  - if：if判断
 
-trim (where, set)
+  - where标签用于解决SQL语句中where关键字以及条件中第一个and或者or的问题 
 
-foreach
+  - trim 可以在条件判断完的SQL语句前后 添加或者去掉指定的字符
 
-4)    OGNL（ Object Graph Navigation Language ）对象图导航语言，这是一种强大的
+  - prefix: 添加前缀
 
-表达式语言，通过它可以非常方便的来操作对象属性。 类似于我们的EL，SpEL等
+  - prefixOverrides: 去掉前缀
 
-访问对象属性：       person.name
+  - suffix: 添加后缀
 
-调用方法：         person.getName()
+  - suffixOverrides:去掉后缀
 
-调用静态属性/方法： @java.lang.Math@PI   
+  - set 主要是用于解决修改操作中SQL语句中**set**关键字，和可能多出**一个逗号**的问题
 
-​                  @java.util.UUID@randomUUID()
+  - choose 主要是用于分支判断，类似于java中的switch case,只会满足所有分支中的一个【与jstl中choose用法一致】
 
-调用构造方法：       new com.atguigu.bean.Person(‘admin’).name
+  - sql: sql 标签是用于抽取可重用的sql片段，将相同的，使用频繁的SQL片段抽取出来，单独定义，方便多次引用.
 
-运算符：             +,-*,/,%
+  - foreach主要用于循环迭代
 
-逻辑运算符：           in,not in,>,>=,<,<=,==,!=
+    - collection: 要迭代的集合
 
-注意：xml中特殊符号如”,>,<等这些都需要使用转义字符
+      item: 当前从集合中迭代出的元素
+
+      open: 开始字符
+
+      close:结束字符
+
+      separator: 元素与元素之间的分隔符
+
+​	4)    OGNL（ Object Graph Navigation Language ）对象图导航语言，这是一种强大的
+
+​			表达式语言，通过它可以非常方便的来操作对象属性。 类似于我们的EL，SpEL等
+
+​			访问对象属性：       person.name
+
+​			调用方法：         person.getName()
+
+​			调用静态属性/方法： @java.lang.Math@PI   
+
+​          									   @java.util.UUID@randomUUID()
+
+​			调用构造方法：       new com.atguigu.bean.Person(‘admin’).name
+
+​			运算符：             +,-*,/,%
+
+​			逻辑运算符：           in,not in,>,>=,<,<=,==,!=
+
+​			**注意：**xml中特殊符号如”,>,<等这些都需要使用转义字符
 
 ## 5.2 if where
 
-1)    If用于完成简单的判断.
+1)	If用于完成简单的判断.
+2)	Where用于解决SQL语句中where关键字以及条件中第一个and或者or的问题 
 
-2)    Where用于解决SQL语句中where关键字以及条件中第一个and或者or的问题 
+```xml
+	<select id="getEmpsByConditionIf" resultType="com.atguigu.mybatis.beans.Employee">
+		select id , last_name ,email  , gender  
+		from tbl_employee 
+		<where>
+			<if test="id!=null">
+				and id = #{id}
+			</if>
+			<if test="lastName!=null &amp;&amp; lastName!=&quot;&quot;">
+				and last_name = #{lastName}
+			</if>
+			<if test="email!=null and email.trim()!=''">
+				and email = #{email}
+			</if>
+			<if test="&quot;m&quot;.equals(gender) or &quot;f&quot;.equals(gender)">
+				and gender = #{gender} 
+			</if>
+		</where>
+	</select>
+```
 
-​       <select id=*"getEmpsByConditionIf"*  resultType=*"com.atguigu.mybatis.beans.Employee"*>            select id , last_name  ,email , gender             from tbl_employee             <where>                <if test=*"id!=null"*>                     and id =  #{id}                </if>                <if test=*"lastName!=null &&  lastName!="""*>                     and  last_name = #{lastName}                </if>                <if test=*"email!=null and email.trim()!=''"*>                     and email  = #{email}                </if>                <if test=*""m".equals(gender) or  "f".equals(gender)"*>                     and  gender = #{gender}                 </if>            </where>  </select>  
 
- 
 
 ## 5.3 trim 
 
-1)    Trim 可以在条件判断完的SQL语句前后 添加或者去掉指定的字符
+1)	Trim 可以在条件判断完的SQL语句前后 添加或者去掉指定的字符
+		prefix: 添加前缀
+		prefixOverrides: 去掉前缀
+		suffix: 添加后缀
+		suffixOverrides: 去掉后缀
 
-prefix: 添加前缀
+```xml
+<select id="getEmpsByConditionTrim" resultType="com.atguigu.mybatis.beans.Employee">
+		select id , last_name ,email  , gender  
+		from tbl_employee 
+		<trim prefix="where"  suffixOverrides="and">
+			<if test="id!=null">
+				 id = #{id} and
+			</if>
+			<if test="lastName!=null &amp;&amp; lastName!=&quot;&quot;">
+				 last_name = #{lastName} and
+			</if>
+			<if test="email!=null and email.trim()!=''">
+				 email = #{email} and
+			</if>
+			<if test="&quot;m&quot;.equals(gender) or &quot;f&quot;.equals(gender)">
+				gender = #{gender}
+			</if>
+		</trim>
+</select>
+```
 
-prefixOverrides: 去掉前缀
 
-suffix: 添加后缀
-
-suffixOverrides: 去掉后缀
-
-  <select id=*"getEmpsByConditionTrim"*  resultType=*"com.atguigu.mybatis.beans.Employee"*>            select id , last_name  ,email , gender             from tbl_employee             <trim prefix=*"where"* suffixOverrides=*"and"*>                <if test=*"id!=null"*>                      id = #{id} and                </if>                <if test=*"lastName!=null &&  lastName!="""*>                      last_name = #{lastName} and                </if>                <if test=*"email!=null and email.trim()!=''"*>                      email = #{email} and                </if>                <if test=*""m".equals(gender) or  "f".equals(gender)"*>                     gender =  #{gender}                </if>            </trim>  </select>  
 
 ## 5.4 set 
 
 1)    set 主要是用于解决修改操作中SQL语句中可能多出逗号的问题
 
-  <update id=*"updateEmpByConditionSet"*>            update tbl_employee             <set>                <if test=*"lastName!=null &&  lastName!="""*>                      last_name = #{lastName},                </if>                <if test=*"email!=null and email.trim()!=''"*>                      email = #{email} ,                </if>                <if test=*""m".equals(gender) or  "f".equals(gender)"*>                     gender =  #{gender}                 </if>            </set>             where id =#{id}       </update>  
+```xml
+<update id="updateEmpByConditionSet">
+		update  tbl_employee  
+		<set>
+			<if test="lastName!=null &amp;&amp; lastName!=&quot;&quot;">
+				 last_name = #{lastName},
+			</if>
+			<if test="email!=null and email.trim()!=''">
+				 email = #{email} ,
+			</if>
+			<if test="&quot;m&quot;.equals(gender) or &quot;f&quot;.equals(gender)">
+				gender = #{gender} 
+			</if>
+		</set>
+		 where id =#{id}
+</update>
 
- 
+```
+
+
 
 ## 5.5 choose(when、otherwise) 
 
 1)    choose 主要是用于分支判断，类似于java中的switch case,只会满足所有分支中的一个
 
-  <select id=*"getEmpsByConditionChoose"*  resultType=*"com.atguigu.mybatis.beans.Employee"*>         select id ,last_name,  email,gender from tbl_employee         <where>             <choose>                <when test=*"id!=null"*>                    id = #{id}                </when>                <when test=*"lastName!=null"*>                    last_name =  #{lastName}                </when>                <when test=*"email!=null"*>                    email =  #{email}                </when>                <otherwise>                     gender = 'm'                </otherwise>             </choose>         </where>  </select>  
+```xml
+<select id="getEmpsByConditionChoose" resultType="com.atguigu.mybatis.beans.Employee">
+		select id ,last_name, email,gender from tbl_employee
+		<where>
+			<choose>
+				<when test="id!=null">
+					id = #{id}
+				</when>
+				<when test="lastName!=null">
+					last_name = #{lastName}
+				</when>
+				<when test="email!=null">
+					email = #{email}
+				</when>
+				<otherwise>
+					 gender = 'm'
+				</otherwise>
+			</choose>
+		</where>
+</select>
+
+```
 
  
 
@@ -774,11 +1119,74 @@ index:
 
 ​     迭代的是List集合: index表示的当前元素的下标
 
-​          迭代的Map集合: index表示的当前元素的key
+​     迭代的Map集合: index表示的当前元素的key
 
-设置数据库url属性,支持多条Sql执行:allowMultiQueries=true
+**设置数据库url属性,支持多条Sql执行:allowMultiQueries=true**，否则不支持一次执行多条语句。
 
-  <select id=*"getEmpsByConditionForeach"*  resultType=*"com.atguigu.mybatis.beans.Employee"*>             select id , last_name, email ,gender from  tbl_employee where id in              <foreach collection=*"ids"* item=*"curr_id"*  open=*"("* close=*")"*  separator=*","* >                     #{curr_id}             </foreach>  </select>  
+**场景一：**循环迭代数据
+
+```java
+/**
+ * 查询类似id在1-5之间员工信息
+ */
+public List<Employee> selectEmpByIds(@Param("ids")List<Integer> ids);
+```
+
+```xml
+<select id="selectEmpByIds" resultType="employee">
+    SELECT
+        <include refid="emp_col"></include>
+    FROM
+        tbl_employee
+    WHERE
+        id IN
+            <foreach open="(" close=")" collection="ids" item="id" separator=",">
+                #{id}
+            </foreach>
+</select>
+```
+
+**场景二：**
+
+- "批处理"新增数据1
+
+```java
+    /**
+     * 使用foreach新增员工信息
+     */
+    public void insertEmpByForEach1(@Param("emps")List<Employee> emps);
+```
+
+```xml
+    <!--    使用foreach新增员工信息-->
+        <insert id="insertEmpByForEach1">
+            <foreach collection="emps" item="emp">
+                INSERT INTO
+                    tbl_employee(last_name,email,gender)
+                VALUES(#{emp.lastName},#{emp.email},#{emp.gender});
+            </foreach>
+        </insert>
+```
+
+- 批处理新增数据2
+
+```java
+    /**
+     * 使用foreach新增员工信息2
+     */
+    public void insertEmpByForEach2(@Param("emps")List<Employee> emps);
+```
+
+```xml
+    <insert id="insertEmpByForEach2">
+        INSERT INTO
+                tbl_employee(last_name,email,gender)
+        VALUES
+            <foreach collection="emps" item="emp" separator=",">
+                (#{emp.lastName},#{emp.email},#{emp.gender})
+            </foreach>
+    </insert>
+```
 
 ## 5.7 sql 
 
@@ -786,13 +1194,17 @@ index:
 
 2)    抽取SQL:
 
-  <sql id=*"selectSQL"*>            select id , last_name,  email ,gender from tbl_employee  </sql>  
+```xml
+  <sql id="selectSQL">       
+      select id , last_name,  email ,gender from tbl_employee 
+  </sql>  
+```
 
 3)    引用SQL:
 
-  <include refid=*"selectSQL"*></include>  
-
- 
+```xml
+  <include refid="selectSQL"></include>  
+```
 
  
 
@@ -804,9 +1216,9 @@ index:
 
 2)    MyBatis系统中默认定义了两级缓存
 
-一级缓存
+​		一级缓存（sqlSession级别缓存，默认开启不能关闭，可以清空）
 
-二级缓存
+​		二级缓存（namespace/mapper/sqlSessionFactory级别缓存，sqlSession关闭或提交后生效，默认不开启，pojo需实现Serializable接口）
 
 3)    默认情况下，只有一级缓存（SqlSession级别的缓存，也称为本地缓存）开启。
 
@@ -822,15 +1234,11 @@ index:
 
 3)    在mybatis3.1之后, 可以配置本地缓存的作用域. 在 mybatis.xml 中配置
 
-![img](file:///C:/Users/11373/AppData/Local/Temp/msohtmlclip1/01/clip_image016.jpg)
-
- 
-
 4)    一级缓存的工作机制
 
-同一次会话期间只要查询过的数据都会保存在当前SqlSession的一个Map中
+​		同一次会话期间只要查询过的数据都会保存在当前SqlSession的一个Map中
 
-key: hashCode+查询的SqlId+编写的sql查询语句+参数
+​		key: hashCode+查询的SqlId+编写的sql查询语句+参数
 
 ## 6.3 一级缓存失效的几种情况
 
@@ -854,65 +1262,79 @@ key: hashCode+查询的SqlId+编写的sql查询语句+参数
 
 5)    二级缓存使用的步骤:
 
-①  全局配置文件中开启二级缓存<setting name="cacheEnabled" value="true"/>
+​		①  全局配置文件中开启二级缓存
 
-②  需要使用二级缓存的映射文件处使用cache配置缓存<cache />
+```xml
+<setting name="cacheEnabled" value="true"/>
+```
 
-③  注意：POJO需要实现Serializable接口
+​		②  需要使用二级缓存的映射文件处使用cache配置缓存
+
+```xml
+<cache />
+```
+
+​		③  注意：POJO需要实现Serializable接口
 
 6)    二级缓存相关的属性
 
-①  eviction=“FIFO”：缓存回收策略：
+​		①  eviction=“FIFO”：缓存回收策略：
 
-LRU – 最近最少使用的：移除最长时间不被使用的对象。
+​			LRU – 最近最少使用的：移除最长时间不被使用的对象。（默认）
 
-FIFO – 先进先出：按对象进入缓存的顺序来移除它们。
+​			FIFO – 先进先出：按对象进入缓存的顺序来移除它们。
 
-SOFT – 软引用：移除基于垃圾回收器状态和软引用规则的对象。
+​			SOFT – 软引用：移除基于垃圾回收器状态和软引用规则的对象。
 
-WEAK – 弱引用：更积极地移除基于垃圾收集器状态和弱引用规则的对象。
+​			WEAK – 弱引用：更积极地移除基于垃圾收集器状态和弱引用规则的对象。
 
-默认的是 LRU。
+​		②  flushInterval：刷新间隔，单位毫秒
 
-②  flushInterval：刷新间隔，单位毫秒
+​			默认情况是不设置，也就是没有刷新间隔，缓存仅仅调用语句时刷新
 
-默认情况是不设置，也就是没有刷新间隔，缓存仅仅调用语句时刷新
+​		③  size：引用数目，正整数
 
-③  size：引用数目，正整数
+​			代表缓存最多可以存储多少个对象，太大容易导致内存溢出
 
-代表缓存最多可以存储多少个对象，太大容易导致内存溢出
+​		④  readOnly：只读，true/false
 
-④  readOnly：只读，true/false
+​			true：只读缓存；会给所有调用者返回缓存对象的相同实例。因此这些对象不能被修改。这提供了很重要的性能优势。
 
-true：只读缓存；会给所有调用者返回缓存对象的相同实例。因此这些对象不能被修改。这提供了很重要的性能优势。
+​			false：读写缓存；会返回缓存对象的拷贝（通过序列化）。这会慢一些，但是安全，因此默认是 false。
 
-false：读写缓存；会返回缓存对象的拷贝（通过序列化）。这会慢一些，但是安全，因此默认是 false。
+## 6.5 二级缓存缓存机制
 
- 
+- 基于相同SqlSessionFactory，多次查询相同数据时，首先从二级缓存中获取数据
+  - 二级缓存中有数据【开启二级缓存且关闭或提交sqlSession时】
+    - 直接使用二级缓存中数据，即可。
+  - 二级缓存中没有数据
+    - 优先从一级缓存中获取数据
+      - 一级缓存中有数据，直接获取数据，使用即可。
+      - 一级缓存中没有数据，执行sql从数据库中获取数据
+        - 默认缓存至一级缓存
+        - 开启二级缓存且关闭或提交sqlSession时，将数据缓存至二级缓存
 
- 
-
-## 6.5 缓存的相关属性设置
+## 6.6 缓存的相关属性设置
 
 1)    全局setting的cacheEnable：
 
-配置二级缓存的开关，一级缓存一直是打开的。
+​		配置二级缓存的开关，一级缓存一直是打开的。
 
 2)    select标签的useCache属性：
 
-配置这个select是否使用二级缓存。一级缓存一直是使用的
+​		配置这个select是否使用二级缓存。一级缓存一直是使用的
 
 3)    sql标签的flushCache属性：
 
-增删改默认flushCache=true。sql执行以后，会同时清空一级和二级缓存。
+​		增删改默认flushCache=true。sql执行以后，会同时清空一级和二级缓存。
 
-查询默认 flushCache=false。
+​		查询默认 flushCache=false。
 
 4)    sqlSession.clearCache()：只是用来清除一级缓存。
 
  
 
-## 6.6 整合第三方缓存 
+## 6.7 整合第三方缓存 
 
 1)    为了提高扩展性。MyBatis定义了缓存接口Cache。我们可以通过实现Cache接口来自定义二级缓存
 
@@ -920,27 +1342,72 @@ false：读写缓存；会返回缓存对象的拷贝（通过序列化）。这
 
 3)    整合EhCache缓存的步骤:
 
-①  导入ehcache包，以及整合包，日志包
+​		①  导入ehcache包，以及整合包，日志包
 
-ehcache-core-2.6.8.jar、mybatis-ehcache-1.0.3.jar
+​				ehcache-core-2.6.8.jar、mybatis-ehcache-1.0.3.jar
 
-slf4j-api-1.6.1.jar、slf4j-log4j12-1.6.2.jar
+​				slf4j-api-1.6.1.jar、slf4j-log4j12-1.6.2.jar
 
-②  编写ehcache.xml配置文件
+​		②  编写ehcache.xml配置文件
 
-  <?xml version=*"1.0"* encoding=*"UTF-8"*?>  <ehcache xmlns:xsi=*"http://www.w3.org/2001/XMLSchema-instance"*   xsi:noNamespaceSchemaLocation=*"../config/ehcache.xsd"*>   <!-- 磁盘保存路径 -->   <diskStore path=*"D:\atguigu\ehcache"* />      <defaultCache     maxElementsInMemory=*"1000"*      maxElementsOnDisk=*"10000000"*    eternal=*"false"*      overflowToDisk=*"true"*      timeToIdleSeconds=*"120"*    timeToLiveSeconds=*"120"*      diskExpiryThreadIntervalSeconds=*"120"*    memoryStoreEvictionPolicy=*"LRU"*>   </defaultCache>  </ehcache>     <!--   属性说明：  l diskStore：指定数据在磁盘中的存储位置。  l  defaultCache：当借助CacheManager.add("demoCache")创建Cache时，EhCache便会采用<defalutCache/>指定的的管理策略     以下属性是必须的：  l  maxElementsInMemory - 在内存中缓存的element的最大数目   l  maxElementsOnDisk - 在磁盘上缓存的element的最大数目，若是0表示无穷大  l eternal -  设定缓存的elements是否永远不过期。如果为true，则缓存的数据始终有效，如果为false那么还要根据timeToIdleSeconds，timeToLiveSeconds判断  l  overflowToDisk - 设定当内存缓存溢出的时候是否将过期的element缓存到磁盘上     以下属性是可选的：  l  timeToIdleSeconds - 当缓存在EhCache中的数据前后两次访问的时间超过timeToIdleSeconds的属性取值时，这些数据便会删除，默认值是0,也就是可闲置时间无穷大  l timeToLiveSeconds  - 缓存element的有效生命期，默认是0.,也就是element存活时间无穷大   diskSpoolBufferSizeMB 这个参数设置DiskStore(磁盘缓存)的缓存区大小.默认是30MB.每个Cache都应该有自己的一个缓冲区.  l  diskPersistent - 在VM重启的时候是否启用磁盘保存EhCache中的数据，默认是false。  l  diskExpiryThreadIntervalSeconds - 磁盘缓存的清理线程运行间隔，默认是120秒。每个120s，相应的线程会进行一次EhCache中数据的清理工作  l  memoryStoreEvictionPolicy - 当内存缓存达到最大，有新的element加入的时候， 移除缓存中element的策略。默认是LRU（最近最少使用），可选的有LFU（最不常使用）和FIFO（先进先出）   -->  
-
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="../config/ehcache.xsd">
+ <!-- 磁盘保存路径 -->
+ <diskStore path="D:\atguigu\ehcache" />
  
+ <defaultCache 
+   maxElementsInMemory="1000" 
+   maxElementsOnDisk="10000000"
+   eternal="false" 
+   overflowToDisk="true" 
+   timeToIdleSeconds="120"
+   timeToLiveSeconds="120" 
+   diskExpiryThreadIntervalSeconds="120"
+   memoryStoreEvictionPolicy="LRU">
+ </defaultCache>
+</ehcache>
+ 
+<!-- 
+属性说明：
+l diskStore：指定数据在磁盘中的存储位置。
+l defaultCache：当借助CacheManager.add("demoCache")创建Cache时，EhCache便会采用<defalutCache/>指定的的管理策略
+ 
+以下属性是必须的：
+l maxElementsInMemory - 在内存中缓存的element的最大数目 
+l maxElementsOnDisk - 在磁盘上缓存的element的最大数目，若是0表示无穷大
+l eternal - 设定缓存的elements是否永远不过期。如果为true，则缓存的数据始终有效，如果为false那么还要根据timeToIdleSeconds，timeToLiveSeconds判断
+l overflowToDisk - 设定当内存缓存溢出的时候是否将过期的element缓存到磁盘上
+ 
+以下属性是可选的：
+l timeToIdleSeconds - 当缓存在EhCache中的数据前后两次访问的时间超过timeToIdleSeconds的属性取值时，这些数据便会删除，默认值是0,也就是可闲置时间无穷大
+l timeToLiveSeconds - 缓存element的有效生命期，默认是0.,也就是element存活时间无穷大
+ diskSpoolBufferSizeMB 这个参数设置DiskStore(磁盘缓存)的缓存区大小.默认是30MB.每个Cache都应该有自己的一个缓冲区.
+l diskPersistent - 在VM重启的时候是否启用磁盘保存EhCache中的数据，默认是false。
+l diskExpiryThreadIntervalSeconds - 磁盘缓存的清理线程运行间隔，默认是120秒。每个120s，相应的线程会进行一次EhCache中数据的清理工作
+l memoryStoreEvictionPolicy - 当内存缓存达到最大，有新的element加入的时候， 移除缓存中element的策略。默认是LRU（最近最少使用），可选的有LFU（最不常使用）和FIFO（先进先出）
+ -->
 
-③  配置cache标签
+```
 
-<cache type="org.mybatis.caches.ehcache.EhcacheCache"></cache>
+​		③  配置EhCache标签
+
+```
+<cache type="org.mybatis.caches.ehcache.EhcacheCache" eviction="FIFO" flushInterval="60000" size="512" readOnly="true" />
+```
+
+
 
 # 第7章：MyBatis 逆向工程
 
 ## 7.1 逆向工程简介
 
-1)    MyBatis Generator: 简称MBG，是一个专门为MyBatis框架使用者定制的代码生成器，可以快速的根据表生成对应的映射文件，接口，以及bean类。支持基本的增删改查，以及QBC（Query By Criteria）风格的条件查询。但是表连接、存储过程等这些复杂sql的定义需要我们手工编写
+- MyBatis Generator: 简称MBG，是一个专门为MyBatis框架使用者定制的代码生成器，可以快速的根据表生成对应的映射文件，接口，以及bean类。
+
+- 支持基本的增删改查，以及QBC（Query By Criteria）风格的条件查询。
+
+- 但是表连接、存储过程等这些复杂sql的定义需要我们手工编写。
 
 官方文档地址
 
@@ -954,17 +1421,79 @@ https://github.com/mybatis/generator/releases
 
 1)    导入逆向工程的jar包
 
-mybatis-generator-core-1.3.2.jar
+​		mybatis-generator-core-1.3.2.jar
 
 2)    编写MBG的配置文件（重要几处配置）,可参考官方手册
 
-  <?xml version=*"1.0"* encoding=*"UTF-8"*?>  <!DOCTYPE generatorConfiguration   PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration  1.0//EN"   "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">     <generatorConfiguration>   <!--              targetRuntime: 执行生成的逆向工程的版本                      MyBatis3Simple:  生成基本的CRUD                      MyBatis3: 生成带条件的CRUD    -->   <context id=*"DB2Tables"* targetRuntime=*"MyBatis3"*>       <jdbcConnection driverClass=*"com.mysql.jdbc.Driver"*      connectionURL=*"jdbc:mysql://localhost:3306/mybatis_1129"*      userId=*"root"*      password=*"1234"*>    </jdbcConnection>       <!-- javaBean的生成策略-->    <javaModelGenerator targetPackage=*"com.atguigu.mybatis.beans"*  targetProject=*".\src"*>     <property name=*"enableSubPackages"*  value=*"true"* />     <property name=*"trimStrings"*  value=*"true"* />    </javaModelGenerator>       <!-- SQL映射文件的生成策略 -->    <sqlMapGenerator targetPackage=*"com.atguigu.mybatis.dao"* targetProject=*".\conf"*>     <property name=*"enableSubPackages"*  value=*"true"* />    </sqlMapGenerator>              <!-- Mapper接口的生成策略 -->    <javaClientGenerator type=*"XMLMAPPER"*  targetPackage=*"com.atguigu.mybatis.dao"* targetProject=*".\src"*>     <property name=*"enableSubPackages"*  value=*"true"* />    </javaClientGenerator>       <!-- 逆向分析的表 -->    <table tableName=*"tbl_dept"* domainObjectName=*"Department"*></table>    <table tableName=*"tbl_employee"* domainObjectName=*"Employee"*></table>   </context>  </generatorConfiguration>  
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+  PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+  "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+  <!-- 
+		id:表名
+	  	targetRuntime: 执行生成的逆向工程的版本
+	  			MyBatis3Simple: 生成基本的CRUD
+	  			MyBatis3: 生成带条件的CRUD
+   -->
+  <context id="DB2Tables" targetRuntime="MyBatis3">
+  
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+        connectionURL="jdbc:mysql://localhost:3306/mybatis_1129"
+        userId="root"
+        password="1234">
+    </jdbcConnection>
+	<!-- javaBean的生成策略-->
+    <javaModelGenerator targetPackage="com.atguigu.mybatis.beans" targetProject=".\src">
+      <property name="enableSubPackages" value="true" />
+      <property name="trimStrings" value="true" />
+    </javaModelGenerator>
+	<!-- SQL映射文件的生成策略 -->
+    <sqlMapGenerator targetPackage="com.atguigu.mybatis.dao"  targetProject=".\conf">
+      <property name="enableSubPackages" value="true" />
+    </sqlMapGenerator>
+	
+	<!-- Mapper接口的生成策略 -->
+    <javaClientGenerator type="XMLMAPPER" targetPackage="com.atguigu.mybatis.dao"  targetProject=".\src">
+      <property name="enableSubPackages" value="true" />
+    </javaClientGenerator>
+	<!-- 逆向分析的表 -->
+    <table tableName="tbl_dept" domainObjectName="Department"></table>
+    <table tableName="tbl_employee" domainObjectName="Employee"></table>
+  </context>
+</generatorConfiguration>
+
+```
 
  
 
 3)    运行代码生成器生成代码
 
-​       @Test  **public** **void**  testMBG() **throws** Exception {              List<String> warnings = **new**  ArrayList<String>();              **boolean** overwrite = **true**;              File configFile  = **new** File("mbg.xml");              ConfigurationParser cp = **new**  ConfigurationParser(warnings);              Configuration config  = cp.parseConfiguration(configFile);              DefaultShellCallback callback = **new**  DefaultShellCallback(overwrite);              MyBatisGenerator myBatisGenerator = **new**  MyBatisGenerator(config,         callback, warnings);              myBatisGenerator.generate(**null**);  }  
+```java
+//代码生成器
+try {
+    List<String> warnings = new ArrayList<String>();
+    boolean overwrite = true;
+    File configFile = new File("mbg.xml");	//配置文件
+    ConfigurationParser cp = new ConfigurationParser(warnings);
+    Configuration config = cp.parseConfiguration(configFile);
+    DefaultShellCallback callback = new DefaultShellCallback(overwrite);
+    MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
+    myBatisGenerator.generate(null);
+} catch (IOException e) {
+    e.printStackTrace();
+} catch (XMLParserException e) {
+    e.printStackTrace();
+} catch (InvalidConfigurationException e) {
+    e.printStackTrace();
+} catch (SQLException e) {
+    e.printStackTrace();
+} catch (InterruptedException e) {
+    e.printStackTrace();
+}
+```
 
  
 
@@ -972,21 +1501,55 @@ mybatis-generator-core-1.3.2.jar
 
 1)    基本查询的测试
 
-  @Test       **public** **void** testSelect() **throws**  Exception {            SqlSessionFactory ssf = getSqlSessionFactory();            SqlSession session = ssf.openSession();                        **try**  {                EmployeeMapper mapper = session.getMapper(EmployeeMapper.**class**);                List<Employee>  emps = mapper.selectAll();                **for** (Employee employee : emps) {                     System.***out\***.println(employee);                }            } **finally** {                session.close();            }  }  
+```java
+@Test
+	public void testSelect() throws Exception {
+		SqlSessionFactory ssf = getSqlSessionFactory();
+		SqlSession session = ssf.openSession();
+		
+		try {
+			EmployeeMapper mapper = session.getMapper(EmployeeMapper.class);
+			List<Employee> emps = mapper.selectAll();
+			for (Employee employee : emps) {
+				System.out.println(employee);
+			}
+		} finally {
+			session.close();
+		}
+}
 
- 
-
- 
+```
 
 2)    带条件查询的测试
 
- 
+```java
+@Test
+	public void testSelect() throws Exception {
+		SqlSessionFactory ssf = getSqlSessionFactory();
+		SqlSession session = ssf.openSession();
+		try {
+			EmployeeMapper mapper = session.getMapper(EmployeeMapper.class);
+			//条件查询: 名字中带有'张' 并且 email中'j'  或者 did = 2 
+			EmployeeExample example =  new EmployeeExample();
+			Criteria criteria = example.createCriteria();
+			criteria.andLastNameLike("%张%");
+			criteria.andEmailLike("%j%");
+			//or 
+			Criteria criteriaOr = example.createCriteria();
+			criteriaOr.andDIdEqualTo(2);
+			example.or(criteriaOr);
+			List<Employee> emps = mapper.selectByExample(example);
+			for (Employee employee : emps) {
+				System.out.println(employee);
+			}
+		} finally {
+			session.close();
+		}
+}
 
-  @Test       **public** **void** testSelect() **throws**  Exception {            SqlSessionFactory ssf = getSqlSessionFactory();            SqlSession session = ssf.openSession();            **try**  {                EmployeeMapper mapper = session.getMapper(EmployeeMapper.**class**);                //条件查询: 名字中带有'张' 并且 email中'j' 或者 did = 2                 EmployeeExample example = **new** EmployeeExample();                Criteria criteria = example.createCriteria();                criteria.andLastNameLike("%张%");                criteria.andEmailLike("%j%");                //or                 Criteria criteriaOr = example.createCriteria();                criteriaOr.andDIdEqualTo(2);                example.or(criteriaOr);                List<Employee>  emps = mapper.selectByExample(example);                **for** (Employee employee : emps) {                     System.***out\***.println(employee);                }            } **finally** {                session.close();            }  }  
+```
 
- 
 
- 
 
 # 第8章：扩展-PageHelper分页插件
 
@@ -1006,7 +1569,11 @@ https://github.com/pagehelper/Mybatis-PageHelper/blob/master/README_zh.md
 
 2)    在MyBatis全局配置文件中配置分页插件
 
-  <plugins>       <plugin interceptor=*"com.github.pagehelper.PageInterceptor"*></plugin>  </plugins>  
+```xml
+  <plugins>      
+      <plugin interceptor=*"com.github.pagehelper.PageInterceptor"*></plugin> 
+  </plugins>  
+```
 
 3)    使用PageHelper提供的方法进行分页
 
@@ -1016,114 +1583,73 @@ https://github.com/pagehelper/Mybatis-PageHelper/blob/master/README_zh.md
 
 1)    在查询之前通过PageHelper.startPage(页码，条数)设置分页信息，该方法返回Page对象
 
-​       @Test       **public** **void** testPageHelper()   **throws** Exception{            SqlSessionFactory ssf = getSqlSessionFactory();            SqlSession session = ssf.openSession();            **try**  {                EmployeeMapper mapper =              session.getMapper(EmployeeMapper.**class**);                //设置分页信息                Page<Object>  page = PageHelper.*startPage*(9, 1);                List<Employee>  emps = mapper.getAllEmps();                **for** (Employee employee : emps) {                     System.***out\***.println(employee);                }                System.***out\***.println("=============获取分页相关的信息=================");                System.***out\***.println("当前页: " + page.getPageNum());                System.***out\***.println("总页码: " + page.getPages());                System.***out\***.println("总条数: " + page.getTotal());                System.***out\***.println("每页显示的条数: " + page.getPageSize());            } **finally** {                session.close();            }       }  
+```java
+	@Test
+	public void testPageHelper()  throws Exception{
+		SqlSessionFactory ssf = getSqlSessionFactory();
+		SqlSession session = ssf.openSession();
+		try {
+			EmployeeMapper mapper = 
+                      session.getMapper(EmployeeMapper.class);
+			//设置分页信息
+			Page<Object> page = PageHelper.startPage(9, 1);
+			List<Employee> emps = mapper.getAllEmps();
+			for (Employee employee : emps) {
+				System.out.println(employee);
+			}
+			System.out.println("=============获取分页相关的信息=================");
+			System.out.println("当前页: " + page.getPageNum());
+			System.out.println("总页码: " + page.getPages());
+			System.out.println("总条数: " + page.getTotal());
+			System.out.println("每页显示的条数: " + page.getPageSize());
+		} finally {
+			session.close();
+		}
+	}
+
+```
 
  
 
 ## 8.4 PageInfo对象的使用 
 
-1)    在查询完数据后，使用PageInfo对象封装查询结果，可以获取更详细的分页信息以及
+1)    在查询完数据后，使用PageInfo对象封装查询结果，可以获取更详细的分页信息以及可以完成分页逻辑
 
-可以完成分页逻辑
+```java
+@Test
+	public void testPageHelper1()  throws Exception{
+		SqlSessionFactory ssf = getSqlSessionFactory();
+		SqlSession session = ssf.openSession();
+		try {
+			EmployeeMapper mapper = session.getMapper(EmployeeMapper.class);
+			//设置分页信息
+			Page<Object> page = PageHelper.startPage(9, 1);
+			List<Employee> emps = mapper.getAllEmps();
+			// 
+			PageInfo<Employee> info  = new PageInfo<>(emps,5);
+			for (Employee employee : emps) {
+				System.out.println(employee);
+			}
+			System.out.println("=============获取详细分页相关的信息=================");
+			System.out.println("当前页: " + info.getPageNum());
+			System.out.println("总页码: " + info.getPages());
+			System.out.println("总条数: " + info.getTotal());
+			System.out.println("每页显示的条数: " + info.getPageSize());
+			System.out.println("是否是第一页: " + info.isIsFirstPage());
+			System.out.println("是否是最后一页: " + info.isIsLastPage());
+			System.out.println("是否有上一页: " + info.isHasPreviousPage());
+			System.out.println("是否有下一页: " + info.isHasNextPage());
+			
+			System.out.println("============分页逻辑===============");
+			int [] nums = info.getNavigatepageNums();
+			for (int i : nums) {
+				System.out.print(i +" " );
+			}
+		} finally {
+			session.close();
+		}
+	}
 
-  @Test       **public** **void** testPageHelper1()   **throws** Exception{            SqlSessionFactory ssf = getSqlSessionFactory();            SqlSession session = ssf.openSession();            **try**  {                EmployeeMapper mapper = session.getMapper(EmployeeMapper.**class**);                //设置分页信息                Page<Object>  page = PageHelper.*startPage*(9, 1);                List<Employee>  emps = mapper.getAllEmps();                //                 PageInfo<Employee>  info = **new** PageInfo<>(emps,5);                **for** (Employee employee : emps) {                     System.***out\***.println(employee);                }                System.***out\***.println("=============获取详细分页相关的信息=================");                System.***out\***.println("当前页: " + info.getPageNum());                System.***out\***.println("总页码: " + info.getPages());                System.***out\***.println("总条数: " + info.getTotal());                 System.***out\***.println("每页显示的条数: " + info.getPageSize());                System.***out\***.println("是否是第一页: " + info.isIsFirstPage());                System.***out\***.println("是否是最后一页: " + info.isIsLastPage());                System.***out\***.println("是否有上一页: " + info.isHasPreviousPage());                System.***out\***.println("是否有下一页: " + info.isHasNextPage());                                System.***out\***.println("============分页逻辑===============");                **int** [] nums = info.getNavigatepageNums();                **for** (**int** i : nums) {                     System.***out\***.print(i +" " );                }            } **finally** {                session.close();            }       }  
+```
 
- 
 
-# 第9章：SSM框架整合
-
-## 9.1 整合注意事项 
-
-1)    查看不同MyBatis版本整合Spring时使用的适配包； 
-
-![img](file:///C:/Users/11373/AppData/Local/Temp/msohtmlclip1/01/clip_image018.jpg)  
-
-2)    下载整合适配包
-
-https://github.com/mybatis/spring/releases
-
-3)    官方整合示例，jpetstore
-
-https://github.com/mybatis/jpetstore-6
-
- 
-
-## 9.2       整合思路、步骤
-
-1)    搭建环境
-
-创建一个动态的WEB工程
-
-导入SSM需要使用的jar包
-
-导入整合适配包
-
-导入其他技术的一些支持包 连接池 数据库驱动 日志.... 
-
-2)    Spring + Springmvc 
-
-在web.xml中配置:  Springmvc的前端控制器  实例化Spring容器的监听器  字符编码过滤器 REST 过滤器
-
-创建Spring的配置文件: applicationContext.xml:组件扫描、 连接池、 事务.....
-
-创建Springmvc的配置文件: springmvc.xml : 组件扫描、 视图解析器 <mvc:...>
-
-3)    MyBatis
-
-创建MyBatis的全局配置文件
-
-编写实体类 Mapper接口 Mapper映射文件
-
-4)    Spring + MyBatis ：
-
-MyBatis的 SqlSession的创建 .
-
-MyBatis的 Mapper接口的代理实现类
-
-5)    测试: REST CRUD
-
-课堂: 查询所有的员工信息,列表显示
-
-课下: 增删改
-
-## 9.3       整合的配置
-
-###     9.3.1 web.xml
-
-  <?xml version=*"1.0"* encoding=*"UTF-8"*?>  <web-app xmlns:xsi=*"http://www.w3.org/2001/XMLSchema-instance"* xmlns=*"http://java.sun.com/xml/ns/javaee"*  xsi:schemaLocation=*"http://java.sun.com/xml/ns/javaee  http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"* id=*"WebApp_ID"* version=*"2.5"*>   <!-- 字符编码过滤器 -->   <filter>      <filter-name>CharacterEncodingFilter</filter-name>      <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>      <init-param>           <param-name>encoding</param-name>           <param-value>UTF-8</param-value>      </init-param>   </filter>   <filter-mapping>      <filter-name>CharacterEncodingFilter</filter-name>      <url-pattern>/*</url-pattern>   </filter-mapping>      <!-- REST 过滤器 -->   <filter>      <filter-name>HiddenHttpMethodFilter</filter-name>      <filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>   </filter>   <filter-mapping>      <filter-name>HiddenHttpMethodFilter</filter-name>      <url-pattern>/*</url-pattern>   </filter-mapping>     <!-- 实例化SpringIOC容器的监听器 -->       <context-param>            <param-name>contextConfigLocation</param-name>            <param-value>classpath:applicationContext.xml</param-value>       </context-param>          <listener>       <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>    </listener>      <!-- Springmvc的前端控制器 -->       <servlet>            <servlet-name>springDispatcherServlet</servlet-name>            <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>            <init-param>                <param-name>contextConfigLocation</param-name>                <param-value>classpath:springmvc.xml</param-value>            </init-param>            <load-on-startup>1</load-on-startup>       </servlet>       <servlet-mapping>            <servlet-name>springDispatcherServlet</servlet-name>            <url-pattern>/</url-pattern>       </servlet-mapping>  </web-app>  
-
-###     9.3.2 Spring配置 
-
-​     <?xml version=*"1.0"* encoding=*"UTF-8"*?>  <beans xmlns=*"http://www.springframework.org/schema/beans"*       xmlns:xsi=*"http://www.w3.org/2001/XMLSchema-instance"*       xmlns:context=*"http://www.springframework.org/schema/context"*       xmlns:tx=*"http://www.springframework.org/schema/tx"*       xmlns:mybatis-spring=*"http://mybatis.org/schema/mybatis-spring"*       xsi:schemaLocation=*"http://mybatis.org/schema/mybatis-spring  http://mybatis.org/schema/mybatis-spring-1.2.xsd*            *http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd*            *http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-4.0.xsd*            *http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx-4.0.xsd"*>              <!-- 组件扫描 -->       <context:component-scan base-package=*"com.atguigu.ssm"*>            <context:exclude-filter type=*"annotation"* expression=*"org.springframework.stereotype.Controller"*/>       </context:component-scan>              <!-- 连接池 -->       <context:property-placeholder location=*"classpath:db.properties"*/>       <bean id=*"dataSource"*  class=*"com.mchange.v2.c3p0.ComboPooledDataSource"*>            <property name=*"driverClass"*  value=*"${jdbc.driver}"*></property>            <property name=*"jdbcUrl"*  value=*"${jdbc.url}"*></property>            <property name=*"user"*  value=*"${jdbc.username}"*></property>            <property name=*"password"*  value=*"${jdbc.password}"*></property>                   </bean>              <!-- 事务 -->       <bean id=*"dataSourceTransactionManager"*              class=*"org.springframework.jdbc.datasource.DataSourceTransactionManager"*>            <property name=*"dataSource"*  ref=*"dataSource"*></property>       </bean>       <tx:annotation-driven transaction-manager=*"dataSourceTransactionManager"*/>  </beans>  
-
-###     9.3.3 SpringMVC配置
-
-  <?xml version=*"1.0"* encoding=*"UTF-8"*?>  <beans xmlns=*"http://www.springframework.org/schema/beans"*       xmlns:xsi=*"http://www.w3.org/2001/XMLSchema-instance"*       xmlns:context=*"http://www.springframework.org/schema/context"*       xmlns:mvc=*"http://www.springframework.org/schema/mvc"*       xsi:schemaLocation=*"http://www.springframework.org/schema/mvc  http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd*            *http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd*            *http://www.springframework.org/schema/context  http://www.springframework.org/schema/context/spring-context-4.0.xsd"*>   <!-- 组件扫描 -->   <context:component-scan base-package=*"com.atguigu.ssm"* use-default-filters=*"false"*>          <context:include-filter type=*"annotation"*         expression=*"org.springframework.stereotype.Controller"*/>   </context:component-scan>    <!--视图解析器 -->    <bean class=*"org.springframework.web.servlet.view.InternalResourceViewResolver"*>       <property name=*"prefix"*  value=*"/WEB-INF/views/"*></property>       <property name=*"suffix"*  value=*".jsp"*></property>    </bean>       <mvc:default-servlet-handler/>    <mvc:annotation-driven/>  </beans>  
-
- 
-
-###     9.3.4 MyBatis配置
-
-1)    全局文件的配置
-
-  <?xml version=*"1.0"* encoding=*"UTF-8"*  ?>  <!DOCTYPE configuration  PUBLIC "-//mybatis.org//DTD  Config 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-config.dtd">  <configuration>       <!-- Spring 整合 MyBatis 后， MyBatis中配置数据源，事务等一些配置都可以       迁移到Spring的整合配置中。MyBatis配置文件中只需要配置与MyBatis相关       的即可。        -->        <!-- settings: 包含很多重要的设置项    -->          <settings>           <!-- 映射下划线到驼峰命名 -->           <setting name=*"mapUnderscoreToCamelCase"* value=*"true"*/>           <!-- 设置Mybatis对null值的默认处理 -->           <setting name=*"jdbcTypeForNull"* value=*"NULL"*/>           <!-- 开启延迟加载 -->           <setting name=*"lazyLoadingEnabled"* value=*"true"*/>           <!-- 设置加载的数据是按需还是全部 -->           <setting name=*"aggressiveLazyLoading"* value=*"false"*/>            <!-- 配置开启二级缓存 -->           <setting name=*"cacheEnabled"* value=*"true"*/>        </settings>  </configuration>  
-
- 
-
-2)    SQL映射文件配置
-
-  <?xml version=*"1.0"* encoding=*"UTF-8"*  ?>  <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD  Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">     <mapper namespace=*"com.atguigu.ssm.mapper.EmployeeMapper"*>       <!-- public List<Employee> getAllEmps();  -->       <select id=*"getAllEmps"*  resultMap=*"myEmpsAndDept"* >            select e.id eid,  e.last_name,e.email,e.gender, d.id did, d.dept_name            from tbl_employee e  ,tbl_dept d             where e.d_id = d.id        </select>       <resultMap type=*"com.atguigu.ssm.beans.Employee"*  id=*"myEmpsAndDept"*>            <id column=*"eid"*  property=*"id"*/>            <result column=*"last_name"*  property=*"lastName"*/>            <result column=*"email"*  property=*"email"*/>            <result column=*"gender"*  property=*"gender"*/>                        <association property=*"dept"*  javaType=*"com.atguigu.ssm.beans.Department"*>                <id column=*"did"* property=*"id"*/>                <result column=*"dept_name"* property=*"departmentName"*/>            </association>       </resultMap>  </mapper>  
-
-###     9.3.5 Spring 整合MyBatis 配置
-
-  <!--  Spring 整合 Mybatis -->       <!--1. SqlSession   -->       <bean class=*"org.mybatis.spring.SqlSessionFactoryBean"*>            <!-- 指定数据源 -->            <property name=*"dataSource"*  ref=*"dataSource"*></property>            <!-- MyBatis的配置文件 -->            <property name=*"configLocation"*             value=*"classpath:mybatis-config.xml"*></property>            <!-- MyBatis的SQL映射文件 -->            <property name=*"mapperLocations"*             value=*"classpath:mybatis/mapper/\*.xml"*></property>            <property name=*"typeAliasesPackage"*             value=*"com.atguigu.ssm.beans"*></property>       </bean>       <!-- Mapper接口            MapperScannerConfigurer 为指定包下的Mapper接口批量生成代理实现类.bean的默认id是接口名首字母小写.         -->       <bean class=*"org.mybatis.spring.mapper.MapperScannerConfigurer"*>            <property name=*"basePackage"*  value=*"com.atguigu.ssm.mapper"*></property>       </bean>       <!-- <mybatis-spring:scan  base-package="com.atguigu.ssm.mapper"/> -->     
-
- 
-
-## 9.4 整合测试 
-
-1)    编写页面，发送请求：http://localhost:8888/ssm/employees
-
-2)    编写Handler,处理请求，完成响应
-
-3)    在页面中获取数据，显示数据
