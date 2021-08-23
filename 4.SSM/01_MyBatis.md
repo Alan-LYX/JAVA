@@ -176,7 +176,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="suibian">
-	<select id="selectEmployee" resultType="com.atguigu.myabtis.helloWorld.Employee">
+	<select id="selectEmployee" resultType="com.myabtis.helloWorld.Employee">
 		select id ,last_name lastName ,email ,gender from tbl_employee where id = #{id}
 		<!-- select * from tbl_employee  where id = #{id} -->
 	</select>
@@ -329,9 +329,9 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
   ```xml
   <typeAliases>
       <!--局部设置-->
-  <!--<typeAlias type="com.atguigu.pojo.Employee" alias="employee"></typeAlias>-->
+  <!--<typeAlias type="com.pojo.Employee" alias="employee"></typeAlias>-->
       <!--全局设置，为当前包下所有pojo,设置别名。别名为类名首字母小写【使用别名时，不区分大小写】--> 
-      <package name="com.atguigu.pojo"/>
+      <package name="com.pojo"/>
   </typeAliases>
   ```
 
@@ -377,7 +377,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
       <!-- 设置映射文件包名，将该报名下所有映射文件统一加载
               要求：映射文件包名，与接口包名一致
       -->
-      <package name="com.atguigu.mapper"/>
+      <package name="com.mapper"/>
   </mappers>
   ```
 
@@ -424,7 +424,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 
 ```xml
 <select id="getEmployeeById" 
-          resultType="com.atguigu.mybatis.beans.Employee" 
+          resultType="com.mybatis.beans.Employee" 
           databaseId="mysql">
 		 select * from tbl_employee where id = ${_parameter}
 </select>
@@ -442,7 +442,7 @@ public Integer  insertEmployee(Employee employee);
 
 ```xml
 <insert id="insertEmployee" 
-		parameterType="com.atguigu.mybatis.beans.Employee"  
+		parameterType="com.mybatis.beans.Employee"  
 			databaseId="mysql">
 		insert into tbl_employee(last_name,email,gender) values(#{lastName},#{email},#{gender})
 </insert>
@@ -498,7 +498,7 @@ public void  deleteEmployeeById(Integer id );
 1)	若数据库支持自动生成主键的字段（比如 MySQL 和 SQL Server），则可以设置 useGeneratedKeys=”true”，然后再把 keyProperty 设置到目标属性上。
 
 ```xml
-<insert id="insertEmployee" 	parameterType="com.atguigu.mybatis.beans.Employee"  
+<insert id="insertEmployee" 	parameterType="com.mybatis.beans.Employee"  
 			databaseId="mysql"
 			useGeneratedKeys="true"
 			keyProperty="id">
@@ -510,7 +510,7 @@ public void  deleteEmployeeById(Integer id );
 
 ```xml
 <insert id="insertEmployee" 
-		parameterType="com.atguigu.mybatis.beans.Employee"  
+		parameterType="com.mybatis.beans.Employee"  
 			databaseId="oracle">
 		<selectKey order="BEFORE" keyProperty="id" 
                                        resultType="integer">
@@ -524,7 +524,7 @@ public void  deleteEmployeeById(Integer id );
 
 ```xml
 <insert id="insertEmployee" 
-		parameterType="com.atguigu.mybatis.beans.Employee"  
+		parameterType="com.mybatis.beans.Employee"  
 			databaseId="oracle">
 		<selectKey order="AFTER" keyProperty="id" 
                                          resultType="integer">
@@ -538,7 +538,7 @@ public void  deleteEmployeeById(Integer id );
 
 ```xml
 <insert id="insertEmployee" 
-		parameterType="com.atguigu.mybatis.beans.Employee"  
+		parameterType="com.mybatis.beans.Employee"  
 			databaseId="oracle">
 		<selectKey order="AFTER" keyProperty="id" 
                                          resultType="integer">
@@ -739,7 +739,7 @@ public Employee selectEmployeeAndDeptByEmpIdAssociation(int id);
         property:设置员工中关联部门属性
         javaType:设置属性类名【全类名】
     -->
-    <association property="dept" javaType="com.atguigu.pojo.Dept">
+    <association property="dept" javaType="com.pojo.Dept">
         <id column="did" property="id"></id>
         <result column="dept_name" property="deptName"></result>
     </association>
@@ -781,7 +781,7 @@ public Employee selectEmployeeAndDeptByEmpIdAssociationByStep(int id);
         javaType:设置属性类名【全类名】
     -->
     <association property="dept"
-                 select="com.atguigu.mapper.DeptMapper.selectDeptById"
+                 select="com.mapper.DeptMapper.selectDeptById"
                  column="did">
     </association>
 </resultMap>
@@ -883,7 +883,7 @@ public List<Dept> selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn();
 
       ```xml
        <collection property="emps"
-           select="com.atguigu.mapper.EmployeeMapper.selectEmpByDeptId"
+           select="com.mapper.EmployeeMapper.selectEmpByDeptId"
            column="{dId=did}"
            fetchType="eager"
        >
@@ -906,7 +906,7 @@ public List<Dept> selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn();
   
   -->
        <collection property="emps"
-           select="com.atguigu.mapper.EmployeeMapper.selectEmpByDeptId"
+           select="com.mapper.EmployeeMapper.selectEmpByDeptId"
            column="{dId=did}"
            fetchType="eager"
        >
@@ -980,7 +980,7 @@ public List<Dept> selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn();
 
 ​          									   @java.util.UUID@randomUUID()
 
-​			调用构造方法：       new com.atguigu.bean.Person(‘admin’).name
+​			调用构造方法：       new com.bean.Person(‘admin’).name
 
 ​			运算符：             +,-*,/,%
 
@@ -994,7 +994,7 @@ public List<Dept> selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn();
 2)	Where用于解决SQL语句中where关键字以及条件中第一个and或者or的问题 
 
 ```xml
-	<select id="getEmpsByConditionIf" resultType="com.atguigu.mybatis.beans.Employee">
+	<select id="getEmpsByConditionIf" resultType="com.mybatis.beans.Employee">
 		select id , last_name ,email  , gender  
 		from tbl_employee 
 		<where>
@@ -1025,7 +1025,7 @@ public List<Dept> selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn();
 		suffixOverrides: 去掉后缀
 
 ```xml
-<select id="getEmpsByConditionTrim" resultType="com.atguigu.mybatis.beans.Employee">
+<select id="getEmpsByConditionTrim" resultType="com.mybatis.beans.Employee">
 		select id , last_name ,email  , gender  
 		from tbl_employee 
 		<trim prefix="where"  suffixOverrides="and">
@@ -1077,7 +1077,7 @@ public List<Dept> selectDeptAndDeptEmpByDeptIdCollectionLeftJoinOn();
 1)    choose 主要是用于分支判断，类似于java中的switch case,只会满足所有分支中的一个
 
 ```xml
-<select id="getEmpsByConditionChoose" resultType="com.atguigu.mybatis.beans.Employee">
+<select id="getEmpsByConditionChoose" resultType="com.mybatis.beans.Employee">
 		select id ,last_name, email,gender from tbl_employee
 		<where>
 			<choose>
@@ -1446,17 +1446,17 @@ https://github.com/mybatis/generator/releases
         password="1234">
     </jdbcConnection>
 	<!-- javaBean的生成策略-->
-    <javaModelGenerator targetPackage="com.atguigu.mybatis.beans" targetProject=".\src">
+    <javaModelGenerator targetPackage="com.mybatis.beans" targetProject=".\src">
       <property name="enableSubPackages" value="true" />
       <property name="trimStrings" value="true" />
     </javaModelGenerator>
 	<!-- SQL映射文件的生成策略 -->
-    <sqlMapGenerator targetPackage="com.atguigu.mybatis.dao"  targetProject=".\conf">
+    <sqlMapGenerator targetPackage="com.mybatis.dao"  targetProject=".\conf">
       <property name="enableSubPackages" value="true" />
     </sqlMapGenerator>
 	
 	<!-- Mapper接口的生成策略 -->
-    <javaClientGenerator type="XMLMAPPER" targetPackage="com.atguigu.mybatis.dao"  targetProject=".\src">
+    <javaClientGenerator type="XMLMAPPER" targetPackage="com.mybatis.dao"  targetProject=".\src">
       <property name="enableSubPackages" value="true" />
     </javaClientGenerator>
 	<!-- 逆向分析的表 -->
@@ -1651,5 +1651,4 @@ https://github.com/pagehelper/Mybatis-PageHelper/blob/master/README_zh.md
 	}
 
 ```
-
 
