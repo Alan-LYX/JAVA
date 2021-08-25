@@ -1,13 +1,3 @@
-# Ajax与JSON
-
-讲师：尚硅谷-张春胜
-
-email：zhangchunsheng_it@163.com
-
-***
-
-
-
 ## 第1章 AJAX简介
 
 ### 1.1 什么是AJAX?

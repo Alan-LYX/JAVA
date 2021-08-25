@@ -1,11 +1,3 @@
-# Listener(监听器)
-
-讲师：尚硅谷-张春胜
-
-email：zhangchunsheng_it@163.com
-
-***
-
 ## 第1章 Listener简介
 
 - Listener用于监听JavaWeb程序中的事件。

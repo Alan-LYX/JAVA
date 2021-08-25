@@ -1,10 +1,4 @@
-# Filter(过滤器)
 
-讲师：尚硅谷-张春胜
-
-email：zhangchunsheng_it@163.com
-
-***
 
 ## 第1章 什么是Filter
 
