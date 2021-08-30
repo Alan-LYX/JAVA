@@ -41,7 +41,8 @@ Java from beginner to master.
 - **操作系统**
   - [ ] 进程/线程、并发/锁、内存管理和调度、IO原理
 - **设计模式**
-  - [ ] 单例、工厂、代理、策略、模板方法、观察者、适配器、责任链、建造者
+  - [x] 单例、工厂、代理
+  - [ ] 策略、模板方法、观察者、适配器、责任链、建造者
 
 
 
@@ -78,9 +79,9 @@ Java from beginner to master.
   - **数据库**
     - ORM层框架
       - [x] MyBatis
-      - [ ] Hibernate、JPA
+      - [ ] MyBatis-plus、Hibernate、JPA
     - 连接池
-      - [x] C3P0、Druid
+      - [x] C3P0、Druid、DBCP
       - [ ] HikaiCP
     - 分库分表
       - [ ] MyCat、Sharding-JDBC、Sharding-Sphere
